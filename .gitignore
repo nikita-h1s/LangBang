@@ -1,0 +1,24 @@
+# Node
+node_modules/
+dist/
+.env
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# Build outputs
+client/dist/
+server/dist/
+
+# IDE
+.vscode/
+.idea/
+
+/tmp
+/out-tsc
+
+/.pnp
+.pnp.js
