@@ -1,0 +1,208 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model achievements {
+  achievement_id    Int                 @id @default(autoincrement())
+  code              String              @unique @db.VarChar(50)
+  title             String              @db.VarChar(100)
+  description       String
+  category          String?             @db.VarChar(50)
+  icon_url          String?
+  condition_type    String              @db.VarChar(50)
+  condition_value   Int?
+  created_at        DateTime?           @default(now()) @db.Timestamp(6)
+  updated_at        DateTime?           @default(now()) @db.Timestamp(6)
+  user_achievements user_achievements[]
+}
+
+model conversation_participants {
+  conversation_id  String           @db.Uuid
+  participant_id   String           @db.Uuid
+  participant_type participant_type
+  joined_at        DateTime         @default(now()) @db.Timestamptz(6)
+  conversations    conversations    @relation(fields: [conversation_id], references: [conversation_id], onDelete: Cascade, onUpdate: NoAction)
+  users            users            @relation(fields: [participant_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([conversation_id, participant_id, participant_type])
+}
+
+model conversations {
+  conversation_id           String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                     String?
+  is_group                  Boolean                     @default(false)
+  created_at                DateTime                    @default(now()) @db.Timestamptz(6)
+  conversation_participants conversation_participants[]
+  messages                  messages[]
+}
+
+model courses {
+  course_id          Int           @id @default(autoincrement())
+  title              String        @db.VarChar(50)
+  description        String?
+  level              course_level
+  created_at         DateTime?     @default(now()) @db.Timestamp(6)
+  updated_at         DateTime?     @default(now()) @db.Timestamp(6)
+  target_language_id Int
+  languages          languages     @relation(fields: [target_language_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  enrollments        enrollments[]
+  lessons            lessons[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model enrollments {
+  user_id        String                   @db.Uuid
+  course_id      Int
+  status         enrollment_course_status @default(active)
+  progress       Int                      @default(0)
+  enrolled_at    DateTime                 @default(now()) @db.Timestamp(6)
+  completed_at   DateTime?                @db.Timestamp(6)
+  last_lesson_id Int?
+  courses        courses                  @relation(fields: [course_id], references: [course_id], onDelete: Cascade, onUpdate: NoAction)
+  lessons        lessons?                 @relation(fields: [last_lesson_id], references: [lesson_id], onUpdate: NoAction)
+  users          users                    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, course_id])
+}
+
+model exercise_progress {
+  id             Int       @id @default(autoincrement())
+  user_id        String    @db.Uuid
+  exercise_id    Int
+  is_correct     Boolean
+  earned_points  Int?      @default(0)
+  attempt_number Int?      @default(1)
+  created_at     DateTime? @default(now()) @db.Timestamp(6)
+  updated_at     DateTime? @default(now()) @db.Timestamp(6)
+  exercises      exercises @relation(fields: [exercise_id], references: [exercise_id], onDelete: Cascade, onUpdate: NoAction)
+  users          users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model exercises {
+  exercise_id       Int                 @id @default(autoincrement())
+  lesson_id         Int
+  type              exercise_type
+  question          String
+  correct_answer    String
+  media_url         String?
+  points            Int?                @default(1)
+  sequence          Int
+  metadata          Json?
+  exercise_progress exercise_progress[]
+  lessons           lessons             @relation(fields: [lesson_id], references: [lesson_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([lesson_id, sequence])
+}
+
+model languages {
+  id             Int              @id @default(autoincrement())
+  code           String           @unique @db.VarChar(10)
+  name           String           @db.VarChar(50)
+  courses        courses[]
+  user_languages user_languages[]
+  users          users[]
+}
+
+model lessons {
+  lesson_id   Int           @id @default(autoincrement())
+  course_id   Int
+  title       String        @db.VarChar(50)
+  description String?
+  sequence    Int
+  created_at  DateTime?     @default(now()) @db.Timestamp(6)
+  updated_at  DateTime?     @default(now()) @db.Timestamp(6)
+  enrollments enrollments[]
+  exercises   exercises[]
+  courses     courses       @relation(fields: [course_id], references: [course_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([course_id, sequence])
+}
+
+model messages {
+  message_id      String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversation_id String            @db.Uuid
+  sender_type     participant_type? @default(user)
+  sender_id       String?           @db.Uuid
+  content         String
+  is_read         Boolean           @default(false)
+  created_at      DateTime          @default(now()) @db.Timestamptz(6)
+  conversations   conversations     @relation(fields: [conversation_id], references: [conversation_id], onDelete: Cascade, onUpdate: NoAction)
+  users           users?            @relation(fields: [sender_id], references: [user_id], onUpdate: NoAction)
+}
+
+model user_achievements {
+  user_id        String       @db.Uuid
+  achievement_id Int
+  earned_at      DateTime?    @default(now()) @db.Timestamp(6)
+  is_notified    Boolean?     @default(false)
+  achievements   achievements @relation(fields: [achievement_id], references: [achievement_id], onDelete: Cascade, onUpdate: NoAction)
+  users          users        @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, achievement_id])
+}
+
+model user_languages {
+  id          Int       @id @default(autoincrement())
+  user_id     String    @db.Uuid
+  language_id Int
+  languages   languages @relation(fields: [language_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users       users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, language_id])
+}
+
+model users {
+  user_id                   String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username                  String                      @unique @db.VarChar(50)
+  email                     String                      @unique @db.VarChar(100)
+  password_hash             String
+  role                      user_role                   @default(user)
+  created_at                DateTime?                   @default(now()) @db.Timestamp(6)
+  updated_at                DateTime?                   @default(now()) @db.Timestamp(6)
+  native_language_id        Int?
+  conversation_participants conversation_participants[]
+  enrollments               enrollments[]
+  exercise_progress         exercise_progress[]
+  messages                  messages[]
+  user_achievements         user_achievements[]
+  user_languages            user_languages[]
+  languages                 languages?                  @relation(fields: [native_language_id], references: [id], onUpdate: NoAction)
+}
+
+enum course_level {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
+enum enrollment_course_status {
+  active
+  completed
+  canceled
+}
+
+enum exercise_type {
+  reading
+  listening
+  writing
+  speaking
+  translation
+}
+
+enum participant_type {
+  user
+  ai
+}
+
+enum user_role {
+  user
+  admin
+}
