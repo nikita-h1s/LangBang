@@ -1,7 +1,12 @@
 import dotenv from "dotenv";
-import express, {type Request, type Response} from 'express';
+import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 import {prisma} from './lib/prisma'
+import {errorHandler} from "./middlewares/errorHandler";
+import authRoutes from './routes/auth.routes';
 
+// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
@@ -9,11 +14,13 @@ const port = process.env.PORT || 5000;
 
 // Middlewares
 app.use(express.json());
+app.use(errorHandler);
+
+const swaggerDocument = YAML.load('./src/swagger.yaml');
 
 // Endpoints
-app.get('/', (req: Request, res: Response) => {
-    res.send('Welcome to the server');
-})
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api', authRoutes);
 
 async function startServer(){
     try {

@@ -22,3 +22,4 @@ server/dist/
 
 /.pnp
 .pnp.js
+/generated/prisma
