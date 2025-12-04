@@ -5,6 +5,7 @@ import YAML from 'yamljs';
 import {prisma} from './lib/prisma'
 import {errorHandler} from "./middlewares/errorHandler";
 import authRoutes from './routes/auth.routes';
+import languagesRoutes from './routes/languages.routes';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -21,6 +22,7 @@ const swaggerDocument = YAML.load('./src/swagger.yaml');
 // Endpoints
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api', authRoutes);
+app.use('/api/languages', languagesRoutes);
 
 async function startServer(){
     try {

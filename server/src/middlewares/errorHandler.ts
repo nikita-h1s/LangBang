@@ -8,8 +8,17 @@ export function errorHandler(
     res: Response,
     next: NextFunction
 ) {
-    // Check if error is a Prisma error
+    // Check if an error is a Prisma error
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        // Check if an error is a unique constraint violation
+        if (err.code === 'P2002') {
+            return res.status(409).json({
+                message: "Record with that unique field already exists.",
+                error: err.message
+            })
+        }
+
+        // Check if error is a database error
         return res.status(400).json({
             message: "Database error",
             error: err.meta
@@ -24,7 +33,7 @@ export function errorHandler(
         });
     }
 
-    // If none of the above, return a generic error
+    // Fallback to unknown error
     return res.status(500).json({
         message: "Internal server error",
         error: "Unknown error"
