@@ -16,23 +16,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - username
-                - email
-                - password
-              properties:
-                username:
-                  type: string
-                  example: student123
-                email:
-                  type: string
-                  format: email
-                  example: student@gmail.com
-                password:
-                  type: string
-                  format: password
-                  example: securePassword123!@#
+              $ref: '#/components/schemas/RegisterRequest'
       responses:
         '201':
           description: User created successfully
@@ -58,17 +42,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - email
-                - password
-              properties:
-                email:
-                  type: string
-                  format: email
-                password:
-                  type: string
-                  format: password
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
           description: User logged in successfully
@@ -88,3 +62,97 @@ paths:
             application/json:
               schema:
                 type: object
+  /languages:
+    get:
+      summary: Get all languages
+      tags:
+        - Languages
+      responses:
+        '200':
+          description: Languages fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  languages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Language'
+    post:
+      summary: Add new language
+      tags:
+        - Languages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Language'
+      responses:
+        201:
+          description: Login created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        409:
+          description: Language code already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          example: student123
+        email:
+          type: string
+          format: email
+          example: student@gmail.com
+        password:
+          type: string
+          format: password
+          example: securePassword123!@#
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    Language:
+      type: object
+      required:
+        - id
+        - code
+        - name
+      properties:
+        id:
+          type: integer
+          example: 1
+        code:
+          type: string
+          example: en
+        name:
+          type: string
+          example: English
+
