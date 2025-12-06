@@ -25,7 +25,7 @@ export function errorHandler(
         });
     }
 
-    // Check if error is an instance of Error
+    // Check if an error is an instance of Error
     if (err instanceof Error) {
         return res.status(500).json({
             message: "Internal server error",

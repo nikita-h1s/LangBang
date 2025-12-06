@@ -6,6 +6,8 @@ import {prisma} from './lib/prisma'
 import {errorHandler} from "./middlewares/errorHandler";
 import authRoutes from './routes/auth.routes';
 import languagesRoutes from './routes/languages.routes';
+import coursesRoutes from './routes/courses.routes';
+import lessonsRoutes from './routes/lessons.routes';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -23,6 +25,8 @@ const swaggerDocument = YAML.load('./src/swagger.yaml');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api', authRoutes);
 app.use('/api/languages', languagesRoutes);
+app.use('/api/courses', coursesRoutes);
+app.use('/api', lessonsRoutes);
 
 async function startServer(){
     try {
@@ -31,7 +35,8 @@ async function startServer(){
 
         // Start server
         app.listen(port, () => {
-            console.log(`Server started on port ${port}`);
+            const url = `http://localhost:${port}`;
+            console.log(`Server started: \u001b]8;;${url}\u0007${url}`);
         })
     } catch (error) {
         console.error('Error connecting to database: ', error);
