@@ -133,7 +133,7 @@ paths:
 
 
     post:
-      summary: Create a new user
+      summary: Create a new course
       tags:
         - Courses
       requestBody:
@@ -235,6 +235,70 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Lesson"
+  /lessons/{id}/exercises:
+    get:
+      summary: Get exercises of a lesson
+      tags:
+        - Exercises
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Successfully fetched exercises
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Exercise"
+        404:
+          description: Exercises with specified lesson id not found
+  /exercises:
+    post:
+      summary: Create an exercise
+      tags:
+        - Exercises
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Exercise"
+      responses:
+        201:
+          description: Exercise created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Exercise created successfully
+                  lesson:
+                    $ref: "#/components/schemas/Exercise"
+        400:
+          description: Bad request - invalid data or database error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        409:
+          description: Conflict - resource with unique field already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     RegisterRequest:
@@ -321,6 +385,35 @@ components:
         sequence:
           type: integer
           example: 1
+    Exercise:
+      type: object
+      required: [lesson_id, type, question, correct_answer, sequence]
+      properties: 
+        lesson_id:
+          type: number
+          example: 1
+        type:
+          type: string
+          enum: ['reading', 'listening', 'writing', 'speaking', 'translation']
+          example: listening
+        question:
+          type: string
+          example: "Choose the correct form: She ___ my best friend."
+        metadata:
+          type: object
+          additionalProperties: true
+        correct_answer:
+          type: string
+          example: is
+        points:
+          type: number
+          example: 10
+        sequence:
+          type: number
+          example: 3
+        media_url:
+          type: string
+          example: https://storage.example.com/audio/lesson1_ex2.mp3
     ErrorResponse:
       type: object
       properties:
