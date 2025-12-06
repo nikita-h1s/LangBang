@@ -1,13 +1,13 @@
 import {Request, Response, NextFunction} from "express";
 import {prisma} from "../lib/prisma";
-import {course_level} from "../../generated/prisma/enums";
+import {CourseLevel} from "../../generated/prisma/enums";
 
 // Request body types
 type CourseBody = {
     title: string;
     description: string;
-    level: course_level;
-    language_code: string;
+    level: CourseLevel;
+    languageCode: string;
 }
 
 // Get all courses from the database
@@ -40,10 +40,10 @@ export const createCourse = async (
     next: NextFunction
 ) => {
     try {
-        const {title, description, level, language_code} = req.body;
+        const {title, description, level, languageCode} = req.body;
 
         const language = await prisma.languages.findUnique({
-            where: {code: language_code}
+            where: {code: languageCode}
         })
 
         if (!language) {
@@ -57,7 +57,7 @@ export const createCourse = async (
                 title,
                 description,
                 level,
-                target_language_id: language.id
+                targetLanguageId: language.id
             }
         });
 

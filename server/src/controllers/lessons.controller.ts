@@ -3,7 +3,7 @@ import {prisma} from '../lib/prisma';
 
 // Request body types
 type lessonBody = {
-    course_id: number;
+    courseId: number;
     title: string;
     description: string;
     sequence: number;
@@ -16,11 +16,11 @@ export const createLesson = async (
     next: NextFunction
 ) => {
     try {
-        const {course_id, title, description, sequence} = req.body;
+        const {courseId, title, description, sequence} = req.body;
 
         const newLesson = await prisma.lessons.create({
             data: {
-                course_id,
+                courseId,
                 title,
                 description,
                 sequence
@@ -46,7 +46,7 @@ export const getLessons = async (
         const course_id = req.params.id;
 
         const lessons = await prisma.lessons.findMany({
-            where: {course_id: Number(course_id)}
+            where: {courseId: Number(course_id)}
         })
 
         res.status(200).json({

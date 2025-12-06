@@ -1,15 +1,15 @@
 import {Request, Response, NextFunction} from 'express';
 import {prisma} from '../lib/prisma';
-import {exercise_type} from '../../generated/prisma/enums'
+import {ExerciseType} from '../../generated/prisma/enums'
 
 type ExerciseBody = {
-    lesson_id: number,
-    type: exercise_type,
+    lessonId: number,
+    type: ExerciseType,
     question: string,
     metadata: object,
     points: number,
-    correct_answer: string,
-    media_url: string,
+    correctAnswer: string,
+    mediaUrl: string,
     sequence: number,
 }
 
@@ -20,19 +20,19 @@ export const createExercise = async (
 ) => {
     try {
         const {
-            lesson_id, type, question, metadata,
-            correct_answer, points, media_url, sequence,
+            lessonId, type, question, metadata,
+            correctAnswer, points, mediaUrl, sequence,
         } = req.body;
 
         const newExercise = await prisma.exercises.create({
             data: {
-                lesson_id,
+                lessonId,
                 type,
                 question,
                 metadata: metadata || {},
                 points,
-                correct_answer,
-                media_url,
+                correctAnswer,
+                mediaUrl,
                 sequence
             }
         })
@@ -56,7 +56,7 @@ export const getExercises = async (
 
        const exercises = await prisma.exercises.findMany({
            where: {
-               lesson_id: Number(lesson_id),
+               lessonId: Number(lesson_id),
            }
        })
 

@@ -22,7 +22,7 @@ export const register = async (req: Request<{}, {}, RegisterBody>, res: Response
             data: {
                 username,
                 email,
-                password_hash: password,
+                passwordHash: password,
                 role: 'user'
             }
         });
@@ -54,7 +54,7 @@ export const login = async (
             })
         }
 
-        if (user.password_hash === password) {
+        if (user.passwordHash === password) {
             res.status(200).json({
                 message: 'Login successful',
                 user: user
