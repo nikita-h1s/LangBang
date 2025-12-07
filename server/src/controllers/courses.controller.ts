@@ -1,6 +1,7 @@
 import {Request, Response, NextFunction} from "express";
 import {prisma} from "../lib/prisma";
-import {CourseLevel} from "../../generated/prisma/enums";
+import {Prisma} from "../../generated/prisma/client"
+import {CourseLevel, EnrollmentCourseStatus} from "../../generated/prisma/enums";
 
 // Request body types
 type CourseBody = {
@@ -8,6 +9,15 @@ type CourseBody = {
     description: string;
     level: CourseLevel;
     languageCode: string;
+}
+
+type EnrollmentBody = {
+    userId: string,
+    courseId: number,
+    status: EnrollmentCourseStatus,
+    progress: number,
+    completedAt: string,
+    lastLessonId: number
 }
 
 // Get all courses from the database
@@ -67,5 +77,37 @@ export const createCourse = async (
         })
     } catch (err) {
         next(err)
+    }
+}
+
+export const enrollForCourse = async (
+    req: Request<{}, {}, EnrollmentBody>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const {
+            userId, courseId
+        } = req.body;
+
+        const newEnrollment = await prisma.enrollments.create({
+            data: {
+                userId,
+                courseId,
+                progress: 0,
+            }
+        })
+
+        res.status(201).json({
+            message: 'Successfully enrolled in the course',
+            enrollment: newEnrollment
+        })
+    } catch (err) {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+            return res.status(409).json({
+               message: "User is already enrolled in the course",
+            });
+        }
+        next(err);
     }
 }

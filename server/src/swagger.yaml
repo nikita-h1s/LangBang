@@ -94,7 +94,7 @@ paths:
               $ref: '#/components/schemas/Language'
       responses:
         201:
-          description: Login created successfully
+          description: Language created successfully
           content:
             application/json:
               schema:
@@ -130,8 +130,6 @@ paths:
                       $ref: '#/components/schemas/Course'
                     language:
                       $ref: '#/components/schemas/Language'
-
-
     post:
       summary: Create a new course
       tags:
@@ -173,6 +171,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /courses/enrollments:
+    post:
+      summary: Enroll a user in a course
+      tags:
+        - Courses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentRequest'
+      responses:
+        201:
+          description: Successfully enrolled in the course
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Successfully enrolled in the course
+                  enrollment:
+                    $ref: '#/components/schemas/Enrollment'
+        409:
+          description: User is already enrolled in the course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        400:
+          description: Bad request - invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /lessons:
     post:
       summary: Create a new lesson
@@ -279,7 +319,7 @@ paths:
                   message:
                     type: string
                     example: Exercise created successfully
-                  lesson:
+                  exercise:
                     $ref: "#/components/schemas/Exercise"
         400:
           description: Bad request - invalid data or database error
@@ -299,6 +339,43 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /exercises/progress:
+    post:
+      summary: Records exercise progress
+      tags:
+        - Exercises
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExerciseProgress"
+      responses:
+        201:
+          description: Progress recorded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Progress recorded successfully
+                  progress:
+                    $ref: "#/components/schemas/ExerciseProgress"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     RegisterRequest:
@@ -352,14 +429,14 @@ components:
       required:
         - title
         - level
-        - language_id
+        - languageId
       properties:
         title:
           type: string
           example: "English A1: Basics"
         description:
           type: string
-        language_id:
+        languageId:
           type: integer
           example: 1
         level:
@@ -369,11 +446,11 @@ components:
     Lesson:
       type: object
       required:
-        - course_id
+        - courseId
         - title
         - sequence
       properties:
-        course_id:
+        courseId:
           type: integer
           example: 1
         title:
@@ -387,9 +464,9 @@ components:
           example: 1
     Exercise:
       type: object
-      required: [lesson_id, type, question, correct_answer, sequence]
-      properties: 
-        lesson_id:
+      required: [lessonId, type, question, correctAnswer, sequence]
+      properties:
+        lessonId:
           type: number
           example: 1
         type:
@@ -402,7 +479,7 @@ components:
         metadata:
           type: object
           additionalProperties: true
-        correct_answer:
+        correctAnswer:
           type: string
           example: is
         points:
@@ -411,9 +488,78 @@ components:
         sequence:
           type: number
           example: 3
-        media_url:
+        mediaUrl:
           type: string
           example: https://storage.example.com/audio/lesson1_ex2.mp3
+    ExerciseProgress:
+      type: object
+      required:
+        - userId
+        - exerciseId
+        - isCorrect
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: string
+          format: uuid
+        exerciseId:
+          type: integer
+        isCorrect:
+          type: boolean
+        earnedPoints:
+          type: integer
+          default: 0
+        attemptNumber:
+          type: integer
+          default: 1
+    EnrollmentRequest:
+      type: object
+      required:
+        - userId
+        - courseId
+      properties:
+        userId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        courseId:
+          type: integer
+          example: 1
+    Enrollment:
+      type: object
+      required:
+        - userId
+        - courseId
+        - status
+        - progress
+        - enrolledAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+        courseId:
+          type: integer
+        status:
+          type: string
+          enum: [ active, completed, canceled ]
+          example: active
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 0
+        enrolledAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        lastLessonId:
+          type: integer
+          nullable: true
     ErrorResponse:
       type: object
       properties:
@@ -421,4 +567,3 @@ components:
           type: string
         error:
           type: string
-

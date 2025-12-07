@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model achievements {
+model Achievements {
   achievementId   Int      @id @default(autoincrement()) @map("achievement_id")
   code            String   @unique @db.VarChar(50)
   title           String   @db.VarChar(100)
@@ -19,32 +19,37 @@ model achievements {
   createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt       DateTime? @default(now()) @map("updated_at") @db.Timestamp(6)
 
-  userAchievements user_achievements[]
+  userAchievements UserAchievements[]
+
+  @@map("achievements")
 }
 
-model conversation_participants {
+model ConversationParticipants {
   conversationId  String           @map("conversation_id") @db.Uuid
   participantId   String           @map("participant_id") @db.Uuid
   participantType ParticipantType @map("participant_type")
   joinedAt        DateTime         @default(now()) @map("joined_at") @db.Timestamptz(6)
 
-  conversations   conversations    @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade, onUpdate: NoAction)
-  users           users            @relation(fields: [participantId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+  conversations   Conversations    @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade, onUpdate: NoAction)
+  users           Users            @relation(fields: [participantId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([conversationId, participantId, participantType])
+  @@map("conversation_participants")
 }
 
-model conversations {
+model Conversations {
   conversationId           String                      @id @default(dbgenerated("gen_random_uuid()")) @map("conversation_id") @db.Uuid
   title                    String?
   isGroup                  Boolean                     @default(false) @map("is_group")
   createdAt                DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  conversationParticipants conversation_participants[]
-  messages                 messages[]
+  conversationParticipants ConversationParticipants[]
+  messages                 Messages[]
+
+  @@map("conversations")
 }
 
-model courses {
+model Courses {
   courseId         Int          @id @default(autoincrement()) @map("course_id")
   title            String       @db.VarChar(50)
   description      String?
@@ -53,13 +58,15 @@ model courses {
   updatedAt        DateTime?    @default(now()) @map("updated_at") @db.Timestamp(6)
   targetLanguageId Int          @map("target_language_id")
 
-  languages        languages    @relation(fields: [targetLanguageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  enrollments      enrollments[]
-  lessons          lessons[]
+  languages        Languages    @relation(fields: [targetLanguageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  enrollments      Enrollments[]
+  lessons          Lessons[]
+
+  @@map("courses")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model enrollments {
+model Enrollments {
   userId       String                   @map("user_id") @db.Uuid
   courseId     Int                      @map("course_id")
   status       EnrollmentCourseStatus @default(active)
@@ -68,14 +75,15 @@ model enrollments {
   completedAt  DateTime?                @map("completed_at") @db.Timestamp(6)
   lastLessonId Int?                     @map("last_lesson_id")
 
-  courses      courses                  @relation(fields: [courseId], references: [courseId], onDelete: Cascade, onUpdate: NoAction)
-  lessons      lessons?                 @relation(fields: [lastLessonId], references: [lessonId], onUpdate: NoAction)
-  users        users                    @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+  courses      Courses                  @relation(fields: [courseId], references: [courseId], onDelete: Cascade, onUpdate: NoAction)
+  lessons      Lessons?                 @relation(fields: [lastLessonId], references: [lessonId], onUpdate: NoAction)
+  users        Users                    @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([userId, courseId])
+  @@map("enrollments")
 }
 
-model exercise_progress {
+model ExerciseProgress {
   id            Int       @id @default(autoincrement())
   userId        String    @map("user_id") @db.Uuid
   exerciseId    Int       @map("exercise_id")
@@ -85,11 +93,13 @@ model exercise_progress {
   createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt     DateTime? @default(now()) @map("updated_at") @db.Timestamp(6)
 
-  exercises     exercises @relation(fields: [exerciseId], references: [exerciseId], onDelete: Cascade, onUpdate: NoAction)
-  users         users     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+  exercises     Exercises @relation(fields: [exerciseId], references: [exerciseId], onDelete: Cascade, onUpdate: NoAction)
+  users         Users     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("exercise_progress")
 }
 
-model exercises {
+model Exercises {
   exerciseId       Int                 @id @default(autoincrement()) @map("exercise_id")
   lessonId         Int                 @map("lesson_id")
   type             ExerciseType
@@ -100,23 +110,26 @@ model exercises {
   sequence         Int
   metadata         Json?
 
-  exerciseProgress exercise_progress[]
-  lessons          lessons             @relation(fields: [lessonId], references: [lessonId], onDelete: Cascade, onUpdate: NoAction)
+  exerciseProgress ExerciseProgress[]
+  lessons          Lessons             @relation(fields: [lessonId], references: [lessonId], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([lessonId, sequence])
+  @@map("exercises")
 }
 
-model languages {
+model Languages {
   id            Int              @id @default(autoincrement())
   code          String           @unique @db.VarChar(10)
   name          String           @db.VarChar(50)
 
-  courses       courses[]
-  userLanguages user_languages[]
-  users         users[]
+  courses       Courses[]
+  userLanguages UserLanguages[]
+  users         Users[]
+
+  @@map("languages")
 }
 
-model lessons {
+model Lessons {
   lessonId    Int           @id @default(autoincrement()) @map("lesson_id")
   courseId    Int           @map("course_id")
   title       String        @db.VarChar(50)
@@ -125,14 +138,15 @@ model lessons {
   createdAt   DateTime?     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt   DateTime?     @default(now()) @map("updated_at") @db.Timestamp(6)
 
-  enrollments enrollments[]
-  exercises   exercises[]
-  courses     courses       @relation(fields: [courseId], references: [courseId], onDelete: Cascade, onUpdate: NoAction)
+  enrollments Enrollments[]
+  exercises   Exercises[]
+  courses     Courses       @relation(fields: [courseId], references: [courseId], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([courseId, sequence])
+  @@map("lessons")
 }
 
-model messages {
+model Messages {
   messageId      String            @id @default(dbgenerated("gen_random_uuid()")) @map("message_id") @db.Uuid
   conversationId String            @map("conversation_id") @db.Uuid
   senderType     ParticipantType? @default(user) @map("sender_type")
@@ -141,34 +155,38 @@ model messages {
   isRead         Boolean           @default(false) @map("is_read")
   createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  conversations  conversations     @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade, onUpdate: NoAction)
-  users          users?            @relation(fields: [senderId], references: [userId], onUpdate: NoAction)
+  conversations  Conversations     @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade, onUpdate: NoAction)
+  users          Users?            @relation(fields: [senderId], references: [userId], onUpdate: NoAction)
+
+  @@map("messages")
 }
 
-model user_achievements {
+model UserAchievements {
   userId        String       @map("user_id") @db.Uuid
   achievementId Int          @map("achievement_id")
   earnedAt      DateTime?    @default(now()) @map("earned_at") @db.Timestamp(6)
   isNotified    Boolean?     @default(false) @map("is_notified")
 
-  achievements  achievements @relation(fields: [achievementId], references: [achievementId], onDelete: Cascade, onUpdate: NoAction)
-  users         users        @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+  achievements  Achievements @relation(fields: [achievementId], references: [achievementId], onDelete: Cascade, onUpdate: NoAction)
+  users         Users        @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([userId, achievementId])
+  @@map("user_achievements")
 }
 
-model user_languages {
+model UserLanguages {
   id         Int       @id @default(autoincrement())
   userId     String    @map("user_id") @db.Uuid
   languageId Int       @map("language_id")
 
-  languages  languages @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  users      users     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+  languages  Languages @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      Users     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([userId, languageId])
+  @@map("user_languages")
 }
 
-model users {
+model Users {
   userId                   String                      @id @default(dbgenerated("gen_random_uuid()")) @map("user_id") @db.Uuid
   username                 String                      @unique @db.VarChar(50)
   email                    String                      @unique @db.VarChar(100)
@@ -178,13 +196,15 @@ model users {
   updatedAt                DateTime?                   @default(now()) @map("updated_at") @db.Timestamp(6)
   nativeLanguageId         Int?                        @map("native_language_id")
 
-  conversationParticipants conversation_participants[]
-  enrollments              enrollments[]
-  exerciseProgress         exercise_progress[]
-  messages                 messages[]
-  userAchievements         user_achievements[]
-  userLanguages            user_languages[]
-  languages                languages?                  @relation(fields: [nativeLanguageId], references: [id], onUpdate: NoAction)
+  conversationParticipants ConversationParticipants[]
+  enrollments              Enrollments[]
+  exerciseProgress         ExerciseProgress[]
+  messages                 Messages[]
+  userAchievements         UserAchievements[]
+  userLanguages            UserLanguages[]
+  languages                Languages?                  @relation(fields: [nativeLanguageId], references: [id], onUpdate: NoAction)
+
+  @@map("users")
 }
 
 enum CourseLevel {

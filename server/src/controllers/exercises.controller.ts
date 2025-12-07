@@ -2,6 +2,7 @@ import {Request, Response, NextFunction} from 'express';
 import {prisma} from '../lib/prisma';
 import {ExerciseType} from '../../generated/prisma/enums'
 
+// Request body types
 type ExerciseBody = {
     lessonId: number,
     type: ExerciseType,
@@ -11,6 +12,14 @@ type ExerciseBody = {
     correctAnswer: string,
     mediaUrl: string,
     sequence: number,
+}
+
+type ExerciseProgressBody = {
+    userId: string,
+    exerciseId: number,
+    isCorrect: boolean,
+    earnedPoints: number,
+    attemptNumber: number
 }
 
 export const createExercise = async (
@@ -67,4 +76,34 @@ export const getExercises = async (
    } catch (err) {
        next(err)
    }
+}
+
+export const exerciseProgress = async (
+    req: Request<{}, {}, ExerciseProgressBody>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const {
+            userId, exerciseId, isCorrect,
+            earnedPoints, attemptNumber
+        } = req.body;
+
+        const newExerciseProgress = await prisma.exerciseProgress.create({
+            data: {
+               userId,
+               exerciseId,
+               isCorrect,
+               earnedPoints,
+               attemptNumber,
+            }
+        })
+
+        res.status(201).json({
+            message: 'Exercise progress recorded successfully.',
+            exerciseProgress: newExerciseProgress,
+        })
+    } catch (err) {
+        next(err)
+    }
 }
