@@ -24,6 +24,14 @@ export const register = async (req: Request<{}, {}, RegisterBody>, res: Response
                 email,
                 passwordHash: password,
                 role: 'user'
+            },
+            select: {
+                userId: true,
+                email: true,
+                username: true,
+                createdAt: true,
+                updatedAt: true,
+                role: true
             }
         });
 
@@ -54,10 +62,12 @@ export const login = async (
             })
         }
 
+        const {passwordHash, ...safeUser} = user;
+
         if (user.passwordHash === password) {
             res.status(200).json({
                 message: 'Login successful',
-                user: user
+                user: safeUser
             })
         } else {
             res.status(401).json({

@@ -9,6 +9,7 @@ import languagesRoutes from './routes/languages.routes';
 import coursesRoutes from './routes/courses.routes';
 import lessonsRoutes from './routes/lessons.routes';
 import exercisesRoutes from './routes/exercises.routes'
+import achievementsRoutes from './routes/achievements.routes';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -26,10 +27,11 @@ const swaggerDocument = YAML.load('./src/swagger.yaml');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api', authRoutes);
-app.use('/api/languages', languagesRoutes);
+app.use('/api', languagesRoutes);
 app.use('/api/courses', coursesRoutes);
 app.use('/api', lessonsRoutes);
 app.use('/api', exercisesRoutes);
+app.use('/api', achievementsRoutes);
 
 async function startServer(){
     try {

@@ -55,3 +55,90 @@ export const getLanguages = async (
         next(err)
     }
 }
+
+// Grant a language to a user
+export const grantLanguageToUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const {userId, languageId} = req.params;
+
+        const user = await prisma.users.findUnique({where: {userId}});
+        const language = await prisma.languages.findUnique({where: {id: Number(languageId)}});
+
+        if (!user || !language) {
+            return res.status(404).json({
+                message: 'User or language not found.'
+            })
+        }
+
+        const existing = await prisma.userLanguages.findUnique({
+            where: {
+                userId_languageId: {
+                    userId,
+                    languageId: Number(languageId)
+                }
+            }
+        });
+
+        if (existing) {
+            return res.status(409).json({
+                message: 'Language already granted to user.'
+            })
+        }
+
+        const newUserLanguage = await prisma.userLanguages.create({
+            data: {
+                userId,
+                languageId: Number(languageId),
+            }
+        });
+
+        res.status(201).json(
+            {
+                message: 'Language granted successfully.',
+                userLanguage: newUserLanguage
+            }
+        )
+    } catch (err) {
+        next(err)
+    }
+}
+
+// Get user languages
+export const getUserLanguages = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const {userId} = req.params;
+
+        const user = await prisma.users.findUnique({where: {userId}});
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found.'
+            })
+        }
+
+        const userLanguages = await prisma.userLanguages.findMany(
+            {
+                where: {userId},
+                select: {
+                    userId: true,
+                    languages: true
+                }
+            }
+        )
+
+        res.status(200).json({
+            message: 'User languages fetched successfully.',
+            userLanguages
+        })
+    } catch (err) {
+        next(err)
+    }
+}

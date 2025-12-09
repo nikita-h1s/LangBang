@@ -29,7 +29,8 @@ paths:
                     type: string
                     example: User created successfully
                   user:
-                    type: object
+                    $ref: "#/components/schemas/RegisterResponse"
+
         '500':
           description: Server error
   /login:
@@ -49,7 +50,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/LoginResponse"
         '404':
           description: User not found
           content:
@@ -91,14 +92,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Language'
+              $ref: '#/components/schemas/LanguageCreateRequest'
       responses:
         201:
           description: Language created successfully
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Language'
         409:
           description: Language code already exists
           content:
@@ -111,6 +112,50 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /users/{userId}/languages/{languageId}:
+    post:
+      summary: Grant a language to a user
+      tags:
+        - Languages
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: User ID (UUID)
+        - in: path
+          name: languageId
+          required: true
+          schema:
+            type: string
+          description: Language ID (integer)
+      responses:
+        '201':
+          description: 'Language granted successfully'
+        '404':
+          description: 'User or language not found'
+  /users/{userId}/languages:
+    get:
+      summary: Get user languages
+      tags:
+        - Languages
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: User ID (UUID)
+      responses:
+        '200':
+          description: User languages fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLanguagesResponse'
+        404:
+          description: User not found
   /courses:
     get:
       summary: Get all courses
@@ -122,14 +167,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    course:
-                      $ref: '#/components/schemas/Course'
-                    language:
-                      $ref: '#/components/schemas/Language'
+                $ref: "#/components/schemas/CourseListResponse"
     post:
       summary: Create a new course
       tags:
@@ -139,7 +177,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Course"
+              $ref: "#/components/schemas/CourseCreateRequest"
       responses:
         201:
           description: Course created successfully
@@ -307,7 +345,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Exercise"
+              $ref: "#/components/schemas/ExerciseCreateRequest"
       responses:
         201:
           description: Exercise created successfully
@@ -320,7 +358,7 @@ paths:
                     type: string
                     example: Exercise created successfully
                   exercise:
-                    $ref: "#/components/schemas/Exercise"
+                    $ref: "#/components/schemas/ExerciseResponse"
         400:
           description: Bad request - invalid data or database error
           content:
@@ -349,7 +387,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ExerciseProgress"
+              $ref: "#/components/schemas/ExerciseProgressRequest"
       responses:
         201:
           description: Progress recorded successfully
@@ -362,7 +400,7 @@ paths:
                     type: string
                     example: Progress recorded successfully
                   progress:
-                    $ref: "#/components/schemas/ExerciseProgress"
+                    $ref: "#/components/schemas/ExerciseProgressResponse"
         400:
           description: Bad request
           content:
@@ -375,145 +413,327 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /achievements:
+    post:
+      summary: Create a new achievement
+      tags:
+        - Achievements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AchievementCreateRequest"
+      responses:
+        '201':
+          description: Achievement created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Achievement created successfully.
+                  achievement:
+                    $ref: '#/components/schemas/Achievement'
+        '409':
+          description: Achievement with given code already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '400':
+          description: Validation or database error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /users/{userId}/achievements:
+    get:
+      summary: Get user achievements
+      tags:
+        - Achievements
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: User ID (UUID)
+      responses:
+        '200':
+          description: List of user achievements
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserAchievementsListResponse"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /users/{userId}/achievements/{achievementId}:
+    post:
+      summary: Grant an achievement to a user
+      tags:
+        - Achievements
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: User ID (UUID)
+        - in: path
+          name: achievementId
+          required: true
+          schema:
+            type: integer
+          description: Achievement ID (integer)
+      responses:
+        '201':
+          description: Achievement granted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Achievement granted successfully.
+                  userAchievement:
+                    $ref: '#/components/schemas/Achievement'
+        '409':
+          description: Achievement already granted to user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   schemas:
-    RegisterRequest:
+
+    # --------------------------
+    # Generic / Base Schemas
+    # --------------------------
+
+    ErrorResponse:
       type: object
-      required:
-        - username
-        - email
-        - password
       properties:
-        username:
+        message:
           type: string
-          example: student123
-        email:
+        details:
           type: string
-          format: email
-          example: student@gmail.com
-        password:
-          type: string
-          format: password
-          example: securePassword123!@#
-    LoginRequest:
+          nullable: true
+
+    SuccessResponse:
       type: object
-      required:
-        - email
-        - password
       properties:
-        email:
+        message:
           type: string
-          format: email
-        password:
-          type: string
-          format: password
-    Language:
+
+
+    # --------------------------
+    # Users
+    # --------------------------
+
+    User:
       type: object
-      required:
-        - id
-        - code
-        - name
       properties:
-        id:
-          type: integer
-          example: 1
-        code:
-          type: string
-          example: en
-        name:
-          type: string
-          example: English
-    Course:
-      type: object
-      required:
-        - title
-        - level
-        - languageId
-      properties:
-        title:
-          type: string
-          example: "English A1: Basics"
-        description:
-          type: string
-        languageId:
-          type: integer
-          example: 1
-        level:
-          type: string
-          enum: [ A1, A2, B1, B2, C1, C2 ]
-          example: "A1"
-    Lesson:
-      type: object
-      required:
-        - courseId
-        - title
-        - sequence
-      properties:
-        courseId:
-          type: integer
-          example: 1
-        title:
-          type: string
-          example: "Lesson 1"
-        description:
-          type: string
-          example: "Lesson 1 description"
-        sequence:
-          type: integer
-          example: 1
-    Exercise:
-      type: object
-      required: [lessonId, type, question, correctAnswer, sequence]
-      properties:
-        lessonId:
-          type: number
-          example: 1
-        type:
-          type: string
-          enum: ['reading', 'listening', 'writing', 'speaking', 'translation']
-          example: listening
-        question:
-          type: string
-          example: "Choose the correct form: She ___ my best friend."
-        metadata:
-          type: object
-          additionalProperties: true
-        correctAnswer:
-          type: string
-          example: is
-        points:
-          type: number
-          example: 10
-        sequence:
-          type: number
-          example: 3
-        mediaUrl:
-          type: string
-          example: https://storage.example.com/audio/lesson1_ex2.mp3
-    ExerciseProgress:
-      type: object
-      required:
-        - userId
-        - exerciseId
-        - isCorrect
-      properties:
-        id:
-          type: integer
-          format: int64
         userId:
           type: string
           format: uuid
-        exerciseId:
+        email:
+          type: string
+        username:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        nativeLanguageId:
           type: integer
-        isCorrect:
-          type: boolean
-        earnedPoints:
+          nullable: true
+
+    RegisterRequest:
+      type: object
+      required: [email, password, username]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+
+    RegisterResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+
+    # --------------------------
+    # Languages
+    # --------------------------
+
+    Language:
+      type: object
+      properties:
+        id:
           type: integer
-          default: 0
-        attemptNumber:
+        code:
+          type: string
+        name:
+          type: string
+    
+    LanguageCreateRequest:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+
+    UserLanguage:
+      type: object
+      properties:
+        language:
+          $ref: "#/components/schemas/Language"
+
+    GrantLanguageRequest:
+      type: object
+      required: [userId, languageId]
+      properties:
+        userId:
+          type: string
+          format: uuid
+        languageId:
           type: integer
-          default: 1
+
+    UserLanguagesResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        userLanguages:
+          type: array
+          items:
+            $ref: "#/components/schemas/Language"
+
+
+    # --------------------------
+    # Courses
+    # --------------------------
+
+    Course:
+      type: object
+      properties:
+        courseId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        level:
+          type: string
+        languageId:
+          type: integer
+
+    CourseCreateRequest:
+      type: object
+      required: [title, description, level, languageId]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        languageId:
+          type: integer
+
+    CourseResponse:
+      type: object
+      properties:
+        courseId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        level:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        language:
+          $ref: "#/components/schemas/Language"
+        lessonCount:
+          type: integer
+
+    CourseListResponse:
+      type: array
+      items:
+        $ref: "#/components/schemas/CourseResponse"
+
+
     EnrollmentRequest:
       type: object
       required:
@@ -527,6 +747,11 @@ components:
         courseId:
           type: integer
           example: 1
+
+    # --------------------------
+    # Enrollments
+    # --------------------------
+
     Enrollment:
       type: object
       required:
@@ -543,7 +768,10 @@ components:
           type: integer
         status:
           type: string
-          enum: [ active, completed, canceled ]
+          enum:
+            - active
+            - completed
+            - canceled
           example: active
         progress:
           type: integer
@@ -560,10 +788,212 @@ components:
         lastLessonId:
           type: integer
           nullable: true
-    ErrorResponse:
+
+    # --------------------------
+    # Lessons
+    # --------------------------
+
+    Lesson:
+      type: object
+      properties:
+        id:
+          type: integer
+        courseId:
+          type: integer
+        title:
+          type: string
+        order:
+          type: integer
+        description:
+          type: string
+
+    LessonCreateRequest:
+      type: object
+      required: [courseId, title, order]
+      properties:
+        courseId:
+          type: integer
+        title:
+          type: string
+        order:
+          type: integer
+        description:
+          type: string
+
+    LessonResponse:
+      type: object
+      properties:
+        lesson:
+          $ref: "#/components/schemas/Lesson"
+
+
+    # --------------------------
+    # Exercises
+    # --------------------------
+
+    Exercise:
+      type: object
+      required: [lessonId, question, correctAnswer, type, points, sequence]
+      properties:
+        lessonId:
+          type: integer
+        question:
+          type: string
+        correctAnswer:
+          type: string
+        type:
+          type: string
+          enum: ['reading', 'listening', 'writing', 'speaking', 'translation']
+        metadata:
+          type: object
+          nullable: true
+        correct_answer:
+          type: string
+        media_url:
+          type: string
+        points:
+          type: integer
+        sequence:
+          type: integer
+
+    ExerciseCreateRequest:
+      $ref: "#/components/schemas/Exercise"
+          
+    ExerciseResponse:
+      type: object
+      properties:
+        exercise:
+          $ref: "#/components/schemas/Exercise"
+
+
+    # --------------------------
+    # Exercise Progress
+    # --------------------------
+
+    ExerciseProgressRequest:
+      type: object
+      required: [exerciseId, userId, isCorrect]
+      properties:
+        exerciseId:
+          type: integer
+        userId:
+          type: string
+          format: uuid
+        isCorrect:
+          type: boolean
+        earnedPoints:
+          type: integer
+        attemptNumber:
+          type: integer
+
+    ExerciseProgressResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+          format: uuid
+        exerciseId:
+          type: integer
+        isCorrect:
+          type: boolean
+        earnedPoints:
+          type: integer
+        attemptNumber:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # --------------------------
+    # Achievements
+    # --------------------------
+
+    Achievement:
+      type: object
+      properties:
+        achievementId:
+          type: integer
+        code:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        iconUrl:
+          type: string
+        conditionType:
+          type: string
+        conditionValue:
+          type: integer
+
+    AchievementCreateRequest:
+      type: object
+      required:
+        - code
+        - title
+        - description
+        - conditionType
+      properties:
+        code:
+          type: string
+          example: FIRST_LESSON
+        title:
+          type: string
+          example: First lesson completed
+        description:
+          type: string
+          example: Granted when a user completes their first lesson.
+        category:
+          type: string
+          example: progress
+        iconUrl:
+          type: string
+          example: https://cdn.example.com/icons/first_lesson.png
+        conditionType:
+          type: string
+          example: lessons_completed
+        conditionValue:
+          type: integer
+          example: 1
+
+    GrantAchievementRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        achievementId:
+          type: integer
+
+    
+    UserAchievementsListResponse:
       type: object
       properties:
         message:
           type: string
-        error:
-          type: string
+          example: User achievements fetched successfully.
+        userAchievements:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+                format: uuid
+              achievementId:
+                type: integer
+              earnedAt:
+                type: string
+                format: date-time
+              isNotified:
+                type: boolean
+              achievements:
+                $ref: '#/components/schemas/Achievement'
+

@@ -27,12 +27,27 @@ export const getAllCourses = async (
     next: NextFunction
 ) => {
     try {
-        const courses = await prisma.courses.findMany({
+        const coursesFromDb = await prisma.courses.findMany({
             include: {
                 languages: true,
                 _count: {select: {lessons: true}}
             }
         });
+
+        const courses = coursesFromDb.map(course => ({
+            courseId: course.courseId,
+            title: course.title,
+            description: course.description,
+            level: course.level,
+            createdAt: course.createdAt,
+            updatedAt: course.updatedAt,
+            language: {
+                id: course.languages.id,
+                code: course.languages.code,
+                name: course.languages.name
+            },
+            lessonCount: course._count.lessons
+        }))
 
         res.status(200).json({
             message: 'Courses fetched successfully',
