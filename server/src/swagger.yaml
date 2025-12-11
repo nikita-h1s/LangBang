@@ -112,6 +112,64 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /languages/{id}:
+    patch:
+      summary: Update a language
+      tags:
+        - Languages
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "fr"
+                name:
+                  type: string
+                  example: "French"
+      responses:
+        200:
+          description: Language updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  language:
+                    $ref: "#/components/schemas/Language"
+        404:
+          description: Language not found
+        500:
+          description: Internal server error
+
+    delete:
+      summary: Delete a language
+      tags:
+        - Languages
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Language deleted successfully
+        404:
+          description: Language not found
+        500:
+          description: Internal server error
   /users/{userId}/languages/{languageId}:
     post:
       summary: Grant a language to a user
@@ -209,6 +267,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /courses/{courseId}:
+    patch:
+      summary: Update course data
+      tags: [ Courses ]
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+      responses:
+        '200':
+          description: Course updated successfully
+    delete:
+      summary: Delete a course
+      tags: [ Courses ]
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: Course deleted successfully
   /courses/enrollments:
     post:
       summary: Enroll a user in a course
@@ -313,6 +402,75 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Lesson"
+  /lessons/{lessonId}:
+    patch:
+      summary: Update a lesson
+      tags:
+        - Lessons
+      parameters:
+        - in: path
+          name: lessonId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                courseId:
+                  type: integer
+                title:
+                  type: string
+                description:
+                  type: string
+                sequence:
+                  type: integer
+            example:
+              title: "Updated lesson title"
+              sequence: 2
+      responses:
+        200:
+          description: Lesson updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  lesson:
+                    $ref: "#/components/schemas/Lesson"
+        404:
+          description: Lesson not found
+        500:
+          description: Internal server error
+    delete:
+      summary: Delete a lesson
+      tags:
+        - Lessons
+      parameters:
+        - in: path
+          name: lessonId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Lesson deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        404:
+          description: Lesson not found
+        500:
+          description: Internal server error
   /lessons/{id}/exercises:
     get:
       summary: Get exercises of a lesson
@@ -413,6 +571,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /exercises/{id}:
+    patch:
+      summary: Update an exercise
+      tags:
+        - Exercises
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Exercise"
+      responses:
+        200:
+          description: Exercise updated successfully
+        404:
+          description: Exercise not found
+        500:
+          description: Internal server error
+
+    delete:
+      summary: Delete an exercise
+      tags:
+        - Exercises
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Exercise deleted successfully
+        404:
+          description: Exercise not found
+        500:
+          description: Internal server error
   /achievements:
     post:
       summary: Create a new achievement
@@ -535,6 +735,131 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /achievements/{id}:
+    patch:
+      summary: Update an achievement
+      tags:
+        - Achievements
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Achievement"
+      responses:
+        200:
+          description: Achievement updated successfully
+        404:
+          description: Achievement not found
+        500:
+          description: Internal server error
+
+    delete:
+      summary: Delete an achievement
+      tags:
+        - Achievements
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Achievement deleted successfully
+        404:
+          description: Achievement not found
+        500:
+          description: Internal server error
+  /conversations:
+    post:
+      summary: Create a new conversation
+      tags:
+        - Conversations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationBody'
+      responses:
+        '201':
+          description: Conversation created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  conversation:
+                    $ref: '#/components/schemas/Conversation'
+        '400':
+          description: Invalid request data
+
+  /conversations/{conversationId}/messages:
+    post:
+      summary: Send a message
+      description: Sends a message in a specific conversation.
+      tags:
+        - Messages
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageBody'
+      responses:
+        '201':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  sentMessage:
+                    $ref: '#/components/schemas/Message'
+    get:
+      summary: Get messages
+      description: Returns a list of messages from a conversation.
+      tags:
+        - Messages
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Messages fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MessageWithUser'
+        '404':
+          description: Conversation not found
 
 components:
   schemas:
@@ -551,13 +876,6 @@ components:
         details:
           type: string
           nullable: true
-
-    SuccessResponse:
-      type: object
-      properties:
-        message:
-          type: string
-
 
     # --------------------------
     # Users
@@ -647,22 +965,6 @@ components:
         name:
           type: string
 
-    UserLanguage:
-      type: object
-      properties:
-        language:
-          $ref: "#/components/schemas/Language"
-
-    GrantLanguageRequest:
-      type: object
-      required: [userId, languageId]
-      properties:
-        userId:
-          type: string
-          format: uuid
-        languageId:
-          type: integer
-
     UserLanguagesResponse:
       type: object
       properties:
@@ -689,12 +991,13 @@ components:
           type: string
         level:
           type: string
+          enum: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
         languageId:
           type: integer
 
     CourseCreateRequest:
       type: object
-      required: [title, description, level, languageId]
+      required: [title, description, level, languageCode]
       properties:
         title:
           type: string
@@ -702,9 +1005,9 @@ components:
           type: string
         level:
           type: string
-          enum: [beginner, intermediate, advanced]
-        languageId:
-          type: integer
+          enum: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+        languageCode:
+          type: string
 
     CourseResponse:
       type: object
@@ -732,21 +1035,6 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/CourseResponse"
-
-
-    EnrollmentRequest:
-      type: object
-      required:
-        - userId
-        - courseId
-      properties:
-        userId:
-          type: string
-          format: uuid
-          example: "550e8400-e29b-41d4-a716-446655440000"
-        courseId:
-          type: integer
-          example: 1
 
     # --------------------------
     # Enrollments
@@ -789,6 +1077,20 @@ components:
           type: integer
           nullable: true
 
+    EnrollmentRequest:
+      type: object
+      required:
+        - userId
+        - courseId
+      properties:
+        userId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        courseId:
+          type: integer
+          example: 1
+
     # --------------------------
     # Lessons
     # --------------------------
@@ -796,36 +1098,14 @@ components:
     Lesson:
       type: object
       properties:
-        id:
-          type: integer
         courseId:
           type: integer
         title:
           type: string
-        order:
+        sequence:
           type: integer
         description:
           type: string
-
-    LessonCreateRequest:
-      type: object
-      required: [courseId, title, order]
-      properties:
-        courseId:
-          type: integer
-        title:
-          type: string
-        order:
-          type: integer
-        description:
-          type: string
-
-    LessonResponse:
-      type: object
-      properties:
-        lesson:
-          $ref: "#/components/schemas/Lesson"
-
 
     # --------------------------
     # Exercises
@@ -847,9 +1127,7 @@ components:
         metadata:
           type: object
           nullable: true
-        correct_answer:
-          type: string
-        media_url:
+        mediaUrl:
           type: string
         points:
           type: integer
@@ -963,16 +1241,6 @@ components:
           type: integer
           example: 1
 
-    GrantAchievementRequest:
-      type: object
-      properties:
-        userId:
-          type: string
-          format: uuid
-        achievementId:
-          type: integer
-
-    
     UserAchievementsListResponse:
       type: object
       properties:
@@ -997,3 +1265,88 @@ components:
               achievements:
                 $ref: '#/components/schemas/Achievement'
 
+    ConversationBody:
+      type: object
+      required:
+        - title
+        - isGroup
+        - participantIds
+      properties:
+        title:
+          type: string
+          example: "Project Discussion"
+        isGroup:
+          type: boolean
+          example: false
+        participantIds:
+          type: array
+          items:
+            type: string
+          example: [ "uuid-user-1", "uuid-user-2" ]
+
+    ConversationParticipant:
+      type: object
+      properties:
+        participantId:
+          type: string
+        participantType:
+          type: string
+          enum: [ user ]
+
+    Conversation:
+      type: object
+      properties:
+        conversationId:
+          type: string
+        title:
+          type: string
+        isGroup:
+          type: boolean
+        conversationParticipants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConversationParticipant'
+
+    SendMessageBody:
+      type: object
+      required:
+        - senderId
+        - content
+      properties:
+        senderId:
+          type: string
+          example: "uuid-user-1"
+        content:
+          type: string
+          example: "Hello!"
+
+    Message:
+      type: object
+      properties:
+        messageId:
+          type: string
+        conversationId:
+          type: string
+        senderId:
+          type: string
+        content:
+          type: string
+        senderType:
+          type: string
+          enum: [ user ]
+        createdAt:
+          type: string
+          format: date-time
+
+    MessageWithUser:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+        - type: object
+          properties:
+            users:
+              type: object
+              properties:
+                userId:
+                  type: string
+                username:
+                  type: string

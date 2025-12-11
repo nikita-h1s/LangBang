@@ -142,3 +142,47 @@ export const getUserLanguages = async (
         next(err)
     }
 }
+
+// Update language
+export const updateLanguage = async (
+    req: Request<{ id: string }, {}, Partial<LanguageBody>>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const id = Number(req.params.id);
+
+        const updated = await prisma.languages.update({
+            where: { id },
+            data: req.body
+        });
+
+        res.status(200).json({
+            message: 'Language updated successfully',
+            language: updated
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// Delete language
+export const deleteLanguage = async (
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const id = Number(req.params.id);
+
+        await prisma.languages.delete({
+            where: { id }
+        });
+
+        res.status(200).json({
+            message: 'Language deleted successfully'
+        });
+    } catch (err) {
+        next(err);
+    }
+};

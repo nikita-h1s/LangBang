@@ -126,3 +126,52 @@ export const enrollForCourse = async (
         next(err);
     }
 }
+
+// Course update
+export const updateCourse = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { courseId } = req.params;
+        const { title, description, level } = req.body;
+
+        const updatedCourse = await prisma.courses.update({
+            where: { courseId: parseInt(courseId) },
+            data: {
+                title,
+                description,
+                level
+            }
+        });
+
+        res.status(200).json({
+            message: 'Course updated successfully',
+            course: updatedCourse
+        })
+    } catch (err) {
+        next(err)
+    }
+};
+
+// Course deletion
+export const deleteCourse = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { courseId } = req.params;
+
+        await prisma.courses.delete({
+            where: { courseId: parseInt(courseId) }
+        });
+
+        res.status(204).json({
+            message: 'Course deleted successfully'
+        });
+    } catch (err) {
+        next(err);
+    }
+};

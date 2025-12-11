@@ -112,3 +112,45 @@ export const grantAchievementToUser = async (
         next(err);
     }
 }
+
+export const updateAchievement = async (
+    req: Request<{ id: string }, {}, Partial<AchievementBody>>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const achievementId = Number(req.params.id);
+
+        const updated = await prisma.achievements.update({
+            where: { achievementId },
+            data: req.body
+        });
+
+        res.status(200).json({
+            message: 'Achievement updated successfully.',
+            achievement: updated
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const deleteAchievement = async (
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const achievementId = Number(req.params.id);
+
+        await prisma.achievements.delete({
+            where: { achievementId }
+        });
+
+        res.status(200).json({
+            message: 'Achievement deleted successfully.'
+        });
+    } catch (err) {
+        next(err);
+    }
+};

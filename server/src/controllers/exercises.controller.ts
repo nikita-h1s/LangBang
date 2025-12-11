@@ -22,6 +22,7 @@ type ExerciseProgressBody = {
     attemptNumber: number
 }
 
+// Create a new exercise
 export const createExercise = async (
     req: Request<{}, {}, ExerciseBody>,
     res: Response,
@@ -55,6 +56,7 @@ export const createExercise = async (
     }
 }
 
+// Get exercises for a lesson
 export const getExercises = async (
     req: Request,
     res: Response,
@@ -78,6 +80,7 @@ export const getExercises = async (
    }
 }
 
+// Record exercise progress
 export const exerciseProgress = async (
     req: Request<{}, {}, ExerciseProgressBody>,
     res: Response,
@@ -107,3 +110,47 @@ export const exerciseProgress = async (
         next(err)
     }
 }
+
+// Update exercise
+export const updateExercise = async (
+    req: Request<{ id: string }, {}, Partial<ExerciseBody>>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const exerciseId = Number(req.params.id);
+
+        const updated = await prisma.exercises.update({
+            where: { exerciseId },
+            data: req.body
+        });
+
+        res.status(200).json({
+            message: "Exercise updated successfully.",
+            exercise: updated
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// Delete exercise
+export const deleteExercise = async (
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const exerciseId = Number(req.params.id);
+
+        await prisma.exercises.delete({
+            where: { exerciseId }
+        });
+
+        res.status(200).json({
+            message: "Exercise deleted successfully."
+        });
+    } catch (err) {
+        next(err);
+    }
+};

@@ -10,6 +10,7 @@ import coursesRoutes from './routes/courses.routes';
 import lessonsRoutes from './routes/lessons.routes';
 import exercisesRoutes from './routes/exercises.routes'
 import achievementsRoutes from './routes/achievements.routes';
+import chatRoutes from './routes/chat.routes';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -19,7 +20,6 @@ const port = process.env.PORT || 5000;
 
 // Middlewares
 app.use(express.json());
-app.use(errorHandler);
 
 const swaggerDocument = YAML.load('./src/swagger.yaml');
 
@@ -32,6 +32,9 @@ app.use('/api/courses', coursesRoutes);
 app.use('/api', lessonsRoutes);
 app.use('/api', exercisesRoutes);
 app.use('/api', achievementsRoutes);
+app.use('/api', chatRoutes);
+
+app.use(errorHandler);
 
 async function startServer(){
     try {
