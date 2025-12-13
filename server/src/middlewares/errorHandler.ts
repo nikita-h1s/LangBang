@@ -1,5 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
 import {Prisma} from '../../generated/prisma/client';
+import {ConflictError} from "../services/auth.service";
 
 // Custom error handler middleware
 export function errorHandler(
@@ -23,6 +24,14 @@ export function errorHandler(
             message: "Database error",
             error: err.meta
         });
+    }
+
+    // Check if an error is a ConflictError
+    if (err instanceof ConflictError) {
+        return res.status(409).json({
+            message: "Conflict error",
+            error: err.message
+        })
     }
 
     // Check if an error is an instance of Error

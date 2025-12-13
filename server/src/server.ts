@@ -3,7 +3,7 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import {prisma} from './lib/prisma'
-import {errorHandler} from "./middlewares/errorHandler";
+
 import authRoutes from './routes/auth.routes';
 import languagesRoutes from './routes/languages.routes';
 import coursesRoutes from './routes/courses.routes';
@@ -11,6 +11,9 @@ import lessonsRoutes from './routes/lessons.routes';
 import exercisesRoutes from './routes/exercises.routes'
 import achievementsRoutes from './routes/achievements.routes';
 import chatRoutes from './routes/chat.routes';
+
+import {errorHandler} from "./middlewares/errorHandler";
+import {authenticateToken} from "./middlewares/auth.middleware";
 
 // Load environment variables from .env file
 dotenv.config();
