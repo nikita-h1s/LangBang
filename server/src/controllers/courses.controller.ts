@@ -27,9 +27,9 @@ export const getAllCourses = async (
     next: NextFunction
 ) => {
     try {
-        const coursesFromDb = await prisma.courses.findMany({
+        const coursesFromDb = await prisma.course.findMany({
             include: {
-                languages: true,
+                language: true,
                 _count: {select: {lessons: true}}
             }
         });
@@ -42,9 +42,9 @@ export const getAllCourses = async (
             createdAt: course.createdAt,
             updatedAt: course.updatedAt,
             language: {
-                id: course.languages.id,
-                code: course.languages.code,
-                name: course.languages.name
+                id: course.language.id,
+                code: course.language.code,
+                name: course.language.name
             },
             lessonCount: course._count.lessons
         }))
@@ -67,7 +67,7 @@ export const createCourse = async (
     try {
         const {title, description, level, languageCode} = req.body;
 
-        const language = await prisma.languages.findUnique({
+        const language = await prisma.language.findUnique({
             where: {code: languageCode}
         })
 
@@ -77,7 +77,7 @@ export const createCourse = async (
             })
         }
 
-        const newCourse = await prisma.courses.create({
+        const newCourse = await prisma.course.create({
             data: {
                 title,
                 description,
@@ -105,7 +105,7 @@ export const enrollForCourse = async (
             userId, courseId
         } = req.body;
 
-        const newEnrollment = await prisma.enrollments.create({
+        const newEnrollment = await prisma.enrollment.create({
             data: {
                 userId,
                 courseId,
@@ -137,7 +137,7 @@ export const updateCourse = async (
         const { courseId } = req.params;
         const { title, description, level } = req.body;
 
-        const updatedCourse = await prisma.courses.update({
+        const updatedCourse = await prisma.course.update({
             where: { courseId: parseInt(courseId) },
             data: {
                 title,
@@ -164,7 +164,7 @@ export const deleteCourse = async (
     try {
         const { courseId } = req.params;
 
-        await prisma.courses.delete({
+        await prisma.course.delete({
             where: { courseId: parseInt(courseId) }
         });
 

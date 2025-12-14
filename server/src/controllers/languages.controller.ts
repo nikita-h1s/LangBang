@@ -16,7 +16,7 @@ export const addLanguage = async (
     try {
         const {code, name} = req.body;
 
-        const newLanguage = await prisma.languages.create({
+        const newLanguage = await prisma.language.create({
             data: {
                 code,
                 name
@@ -39,7 +39,7 @@ export const getLanguages = async (
     next: NextFunction
 ) => {
     try {
-        const languages = await prisma.languages.findMany({
+        const languages = await prisma.language.findMany({
             select: {
                 id: true,
                 code: true,
@@ -65,8 +65,8 @@ export const grantLanguageToUser = async (
     try {
         const {userId, languageId} = req.params;
 
-        const user = await prisma.users.findUnique({where: {userId}});
-        const language = await prisma.languages.findUnique({where: {id: Number(languageId)}});
+        const user = await prisma.user.findUnique({where: {userId}});
+        const language = await prisma.language.findUnique({where: {id: Number(languageId)}});
 
         if (!user || !language) {
             return res.status(404).json({
@@ -74,7 +74,7 @@ export const grantLanguageToUser = async (
             })
         }
 
-        const existing = await prisma.userLanguages.findUnique({
+        const existing = await prisma.userLanguage.findUnique({
             where: {
                 userId_languageId: {
                     userId,
@@ -89,7 +89,7 @@ export const grantLanguageToUser = async (
             })
         }
 
-        const newUserLanguage = await prisma.userLanguages.create({
+        const newUserLanguage = await prisma.userLanguage.create({
             data: {
                 userId,
                 languageId: Number(languageId),
@@ -116,7 +116,7 @@ export const getUserLanguages = async (
     try {
         const {userId} = req.params;
 
-        const user = await prisma.users.findUnique({where: {userId}});
+        const user = await prisma.user.findUnique({where: {userId}});
 
         if (!user) {
             return res.status(404).json({
@@ -124,12 +124,12 @@ export const getUserLanguages = async (
             })
         }
 
-        const userLanguages = await prisma.userLanguages.findMany(
+        const userLanguages = await prisma.userLanguage.findMany(
             {
                 where: {userId},
                 select: {
                     userId: true,
-                    languages: true
+                    language: true
                 }
             }
         )
@@ -152,7 +152,7 @@ export const updateLanguage = async (
     try {
         const id = Number(req.params.id);
 
-        const updated = await prisma.languages.update({
+        const updated = await prisma.language.update({
             where: { id },
             data: req.body
         });
@@ -175,7 +175,7 @@ export const deleteLanguage = async (
     try {
         const id = Number(req.params.id);
 
-        await prisma.languages.delete({
+        await prisma.language.delete({
             where: { id }
         });
 

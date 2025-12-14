@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model Achievements {
+model Achievement {
   achievementId   Int      @id @default(autoincrement()) @map("achievement_id")
   code            String   @unique @db.VarChar(50)
   title           String   @db.VarChar(100)
@@ -19,65 +19,64 @@ model Achievements {
   createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt       DateTime? @default(now()) @map("updated_at") @db.Timestamp(6)
 
-  userAchievements UserAchievements[]
+  userAchievements UserAchievement[]
 
   @@map("achievements")
 }
 
-model ConversationParticipants {
+model ConversationParticipant {
   conversationId  String           @map("conversation_id") @db.Uuid
   participantId   String           @map("participant_id") @db.Uuid
   participantType ParticipantType @map("participant_type")
   joinedAt        DateTime         @default(now()) @map("joined_at") @db.Timestamptz(6)
 
-  conversations   Conversations    @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade, onUpdate: NoAction)
-  users           Users            @relation(fields: [participantId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+  conversation   Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
+  user           User         @relation(fields: [participantId], references: [userId], onDelete: Cascade)
 
   @@id([conversationId, participantId, participantType])
   @@map("conversation_participants")
 }
 
-model Conversations {
-  conversationId           String                      @id @default(dbgenerated("gen_random_uuid()")) @map("conversation_id") @db.Uuid
-  title                    String?
-  isGroup                  Boolean                     @default(false) @map("is_group")
-  createdAt                DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
+model Conversation {
+  conversationId String    @id @default(dbgenerated("gen_random_uuid()")) @map("conversation_id") @db.Uuid
+  title          String?
+  isGroup        Boolean   @default(false) @map("is_group")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  conversationParticipants ConversationParticipants[]
-  messages                 Messages[]
+  participants ConversationParticipant[]
+  messages     Message[]
 
   @@map("conversations")
 }
 
-model Courses {
-  courseId         Int          @id @default(autoincrement()) @map("course_id")
-  title            String       @db.VarChar(50)
+model Course {
+  courseId         Int         @id @default(autoincrement()) @map("course_id")
+  title            String      @db.VarChar(50)
   description      String?
   level            CourseLevel
-  createdAt        DateTime?    @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt        DateTime?    @default(now()) @map("updated_at") @db.Timestamp(6)
-  targetLanguageId Int          @map("target_language_id")
+  createdAt        DateTime?   @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt        DateTime?   @default(now()) @map("updated_at") @db.Timestamp(6)
+  targetLanguageId Int         @map("target_language_id")
 
-  languages        Languages    @relation(fields: [targetLanguageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  enrollments      Enrollments[]
-  lessons          Lessons[]
+  language     Language     @relation(fields: [targetLanguageId], references: [id])
+  enrollments  Enrollment[]
+  lessons      Lesson[]
 
   @@map("courses")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model Enrollments {
+model Enrollment {
   userId       String                   @map("user_id") @db.Uuid
   courseId     Int                      @map("course_id")
-  status       EnrollmentCourseStatus @default(active)
+  status       EnrollmentCourseStatus   @default(active)
   progress     Int                      @default(0)
   enrolledAt   DateTime                 @default(now()) @map("enrolled_at") @db.Timestamp(6)
   completedAt  DateTime?                @map("completed_at") @db.Timestamp(6)
   lastLessonId Int?                     @map("last_lesson_id")
 
-  courses      Courses                  @relation(fields: [courseId], references: [courseId], onDelete: Cascade, onUpdate: NoAction)
-  lessons      Lessons?                 @relation(fields: [lastLessonId], references: [lessonId], onUpdate: NoAction)
-  users        Users                    @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+  course  Course   @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
+  lesson  Lesson?  @relation(fields: [lastLessonId], references: [lessonId])
+  user    User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@id([userId, courseId])
   @@map("enrollments")
@@ -93,119 +92,120 @@ model ExerciseProgress {
   createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt     DateTime? @default(now()) @map("updated_at") @db.Timestamp(6)
 
-  exercises     Exercises @relation(fields: [exerciseId], references: [exerciseId], onDelete: Cascade, onUpdate: NoAction)
-  users         Users     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+  exercise Exercise @relation(fields: [exerciseId], references: [exerciseId], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@map("exercise_progress")
 }
 
-model Exercises {
-  exerciseId       Int                 @id @default(autoincrement()) @map("exercise_id")
-  lessonId         Int                 @map("lesson_id")
-  type             ExerciseType
-  question         String
-  correctAnswer    String              @map("correct_answer")
-  mediaUrl         String?             @map("media_url")
-  points           Int?                @default(1)
-  sequence         Int
-  metadata         Json?
+model Exercise {
+  exerciseId    Int          @id @default(autoincrement()) @map("exercise_id")
+  lessonId      Int          @map("lesson_id")
+  type          ExerciseType
+  question      String
+  correctAnswer String       @map("correct_answer")
+  mediaUrl      String?      @map("media_url")
+  points        Int?         @default(1)
+  sequence      Int
+  metadata      Json?
 
-  exerciseProgress ExerciseProgress[]
-  lessons          Lessons             @relation(fields: [lessonId], references: [lessonId], onDelete: Cascade, onUpdate: NoAction)
+  progress ExerciseProgress[]
+  lesson   Lesson            @relation(fields: [lessonId], references: [lessonId], onDelete: Cascade)
 
   @@unique([lessonId, sequence])
   @@map("exercises")
 }
 
-model Languages {
-  id            Int              @id @default(autoincrement())
-  code          String           @unique @db.VarChar(10)
-  name          String           @db.VarChar(50)
+model Language {
+  id    Int    @id @default(autoincrement())
+  code  String @unique @db.VarChar(10)
+  name  String @db.VarChar(50)
 
-  courses       Courses[]
-  userLanguages UserLanguages[]
-  users         Users[]
+  courses       Course[]
+  userLanguages UserLanguage[]
+  users         User[]
 
   @@map("languages")
 }
 
-model Lessons {
-  lessonId    Int           @id @default(autoincrement()) @map("lesson_id")
-  courseId    Int           @map("course_id")
-  title       String        @db.VarChar(50)
+model Lesson {
+  lessonId    Int       @id @default(autoincrement()) @map("lesson_id")
+  courseId    Int       @map("course_id")
+  title       String    @db.VarChar(50)
   description String?
   sequence    Int
-  createdAt   DateTime?     @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt   DateTime?     @default(now()) @map("updated_at") @db.Timestamp(6)
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime? @default(now()) @map("updated_at") @db.Timestamp(6)
 
-  enrollments Enrollments[]
-  exercises   Exercises[]
-  courses     Courses       @relation(fields: [courseId], references: [courseId], onDelete: Cascade, onUpdate: NoAction)
+  course       Course        @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
+  exercises    Exercise[]
+  enrollments  Enrollment[]
 
   @@unique([courseId, sequence])
   @@map("lessons")
 }
 
-model Messages {
-  messageId      String            @id @default(dbgenerated("gen_random_uuid()")) @map("message_id") @db.Uuid
-  conversationId String            @map("conversation_id") @db.Uuid
+model Message {
+  messageId      String           @id @default(dbgenerated("gen_random_uuid()")) @map("message_id") @db.Uuid
+  conversationId String           @map("conversation_id") @db.Uuid
   senderType     ParticipantType? @default(user) @map("sender_type")
-  senderId       String?           @map("sender_id") @db.Uuid
+  senderId       String?          @map("sender_id") @db.Uuid
   content        String
-  isRead         Boolean           @default(false) @map("is_read")
-  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  isRead         Boolean          @default(false) @map("is_read")
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  conversations  Conversations     @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade, onUpdate: NoAction)
-  users          Users?            @relation(fields: [senderId], references: [userId], onUpdate: NoAction)
+  conversation Conversation @relation(fields: [conversationId], references: [conversationId], onDelete: Cascade)
+  sender       User?        @relation(fields: [senderId], references: [userId])
 
   @@map("messages")
 }
 
-model UserAchievements {
-  userId        String       @map("user_id") @db.Uuid
-  achievementId Int          @map("achievement_id")
-  earnedAt      DateTime?    @default(now()) @map("earned_at") @db.Timestamp(6)
-  isNotified    Boolean?     @default(false) @map("is_notified")
+model UserAchievement {
+  userId        String    @map("user_id") @db.Uuid
+  achievementId Int       @map("achievement_id")
+  earnedAt      DateTime? @default(now()) @map("earned_at") @db.Timestamp(6)
+  isNotified    Boolean?  @default(false) @map("is_notified")
 
-  achievements  Achievements @relation(fields: [achievementId], references: [achievementId], onDelete: Cascade, onUpdate: NoAction)
-  users         Users        @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+  achievement Achievement @relation(fields: [achievementId], references: [achievementId], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@id([userId, achievementId])
   @@map("user_achievements")
 }
 
-model UserLanguages {
-  id         Int       @id @default(autoincrement())
-  userId     String    @map("user_id") @db.Uuid
-  languageId Int       @map("language_id")
+model UserLanguage {
+  id         Int    @id @default(autoincrement())
+  userId     String @map("user_id") @db.Uuid
+  languageId Int    @map("language_id")
 
-  languages  Languages @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  users      Users     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@unique([userId, languageId])
   @@map("user_languages")
 }
 
-model Users {
-  userId                   String                      @id @default(dbgenerated("gen_random_uuid()")) @map("user_id") @db.Uuid
-  username                 String                      @unique @db.VarChar(50)
-  email                    String                      @unique @db.VarChar(100)
-  passwordHash             String                      @map("password_hash")
-  role                     UserRole                   @default(user)
-  createdAt                DateTime?                   @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt                DateTime?                   @default(now()) @map("updated_at") @db.Timestamp(6)
-  nativeLanguageId         Int?                        @map("native_language_id")
+model User {
+  userId           String    @id @default(dbgenerated("gen_random_uuid()")) @map("user_id") @db.Uuid
+  username         String    @unique @db.VarChar(50)
+  email            String    @unique @db.VarChar(100)
+  passwordHash     String    @map("password_hash")
+  role             UserRole  @default(user)
+  createdAt        DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt        DateTime? @default(now()) @map("updated_at") @db.Timestamp(6)
+  nativeLanguageId Int?      @map("native_language_id")
 
-  conversationParticipants ConversationParticipants[]
-  enrollments              Enrollments[]
-  exerciseProgress         ExerciseProgress[]
-  messages                 Messages[]
-  userAchievements         UserAchievements[]
-  userLanguages            UserLanguages[]
-  languages                Languages?                  @relation(fields: [nativeLanguageId], references: [id], onUpdate: NoAction)
+  conversations ConversationParticipant[]
+  enrollments   Enrollment[]
+  progress      ExerciseProgress[]
+  messages      Message[]
+  achievements  UserAchievement[]
+  languages     UserLanguage[]
+  nativeLanguage Language? @relation(fields: [nativeLanguageId], references: [id])
 
   @@map("users")
 }
+
 
 enum CourseLevel {
   A1

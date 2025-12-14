@@ -12,7 +12,7 @@ export class ConflictError extends Error {
 }
 
 export const registerUser = async (data: RegisterInput) => {
-    const existingUsername = await prisma.users.findUnique(
+    const existingUsername = await prisma.user.findUnique(
         {where: {username: data.username}}
     );
 
@@ -20,7 +20,7 @@ export const registerUser = async (data: RegisterInput) => {
         throw new ConflictError('Username already taken.');
     }
 
-    const existingEmail = await prisma.users.findUnique({
+    const existingEmail = await prisma.user.findUnique({
         where: {email: data.email}
     })
 
@@ -30,7 +30,7 @@ export const registerUser = async (data: RegisterInput) => {
 
     const hashedPassword = await hashPassword(data.password);
 
-    return prisma.users.create({
+    return prisma.user.create({
         data: {
             username: data.username,
             email: data.email,
@@ -49,7 +49,7 @@ export const registerUser = async (data: RegisterInput) => {
 }
 
 export const loginUser = async (email: string, password: string) => {
-    const user = await prisma.users.findUnique({where: {email}});
+    const user = await prisma.user.findUnique({where: {email}});
 
     if (!user) {
         throw new ConflictError('Email not found.');

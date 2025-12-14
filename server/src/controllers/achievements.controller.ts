@@ -29,7 +29,7 @@ export const createAchievement = async (
             iconUrl, conditionType, conditionValue
         } = req.body;
 
-        const newAchievement = await prisma.achievements.create({
+        const newAchievement = await prisma.achievement.create({
             data: {
                 code,
                 title,
@@ -58,10 +58,10 @@ export const getUserAchievements = async (
     try {
         const {userId} = req.params;
 
-        const userAchievements = await prisma.userAchievements.findMany({
+        const userAchievements = await prisma.userAchievement.findMany({
             where: {userId},
             include: {
-                achievements: true
+                achievement: true
             }
         })
 
@@ -82,7 +82,7 @@ export const grantAchievementToUser = async (
     try {
         const {userId, achievementId} = req.params;
 
-        const existing = await prisma.userAchievements.findUnique({
+        const existing = await prisma.userAchievement.findUnique({
             where: {
                 userId_achievementId: {
                     userId,
@@ -97,7 +97,7 @@ export const grantAchievementToUser = async (
             })
         }
 
-        const newUserAchievement = await prisma.userAchievements.create({
+        const newUserAchievement = await prisma.userAchievement.create({
             data: {
                 userId,
                 achievementId: Number(achievementId),
@@ -121,7 +121,7 @@ export const updateAchievement = async (
     try {
         const achievementId = Number(req.params.id);
 
-        const updated = await prisma.achievements.update({
+        const updated = await prisma.achievement.update({
             where: { achievementId },
             data: req.body
         });
@@ -143,7 +143,7 @@ export const deleteAchievement = async (
     try {
         const achievementId = Number(req.params.id);
 
-        await prisma.achievements.delete({
+        await prisma.achievement.delete({
             where: { achievementId }
         });
 

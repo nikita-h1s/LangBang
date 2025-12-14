@@ -18,7 +18,7 @@ export const createLesson = async (
     try {
         const { courseId, title, description, sequence } = req.body;
 
-        const newLesson = await prisma.lessons.create({
+        const newLesson = await prisma.lesson.create({
             data: { courseId, title, description, sequence }
         });
 
@@ -40,7 +40,7 @@ export const getLessons = async (
     try {
         const course_id = Number(req.params.id);
 
-        const lessons = await prisma.lessons.findMany({
+        const lessons = await prisma.lesson.findMany({
             where: { courseId: course_id },
             orderBy: { sequence: 'asc' }
         });
@@ -63,7 +63,7 @@ export const updateLesson = async (
     try {
         const lessonId = Number(req.params.id);
 
-        const updatedLesson = await prisma.lessons.update({
+        const updatedLesson = await prisma.lesson.update({
             where: { lessonId: lessonId },
             data: req.body
         });
@@ -86,7 +86,7 @@ export const deleteLesson = async (
     try {
         const lessonId = Number(req.params.id);
 
-        await prisma.lessons.delete({
+        await prisma.lesson.delete({
             where: { lessonId: lessonId }
         });
 

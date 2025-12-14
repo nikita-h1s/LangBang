@@ -16,11 +16,11 @@ export const createConversation = async (
     try {
         const {title, isGroup, participantIds} = req.body;
 
-        const newConversation = await prisma.conversations.create({
+        const newConversation = await prisma.conversation.create({
             data: {
                 title: title || 'New chat',
                 isGroup: isGroup || false,
-                conversationParticipants: {
+                participants: {
                     create: participantIds.map(userId => ({
                         participantId: userId,
                         participantType: 'user'
@@ -28,7 +28,7 @@ export const createConversation = async (
                 }
             },
             include: {
-                conversationParticipants: true
+                participants: true
             }
         })
 
@@ -50,7 +50,7 @@ export const sendMessage = async (
         const { conversationId } = req.params;
         const { senderId, content } = req.body;
 
-        const newMessage = await prisma.messages.create({
+        const newMessage = await prisma.message.create({
             data: {
                 conversationId: conversationId,
                 senderId: senderId,
@@ -76,11 +76,11 @@ export const getMessages = async (
     try {
         const { conversationId } = req.params;
 
-        const messages = await prisma.messages.findMany({
+        const messages = await prisma.message.findMany({
             where: { conversationId: conversationId },
             orderBy: { createdAt: 'asc' },
             include: {
-                users: {
+                sender: {
                     select: { username: true, userId: true }
                 }
             }

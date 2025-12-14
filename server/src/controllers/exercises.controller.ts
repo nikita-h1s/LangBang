@@ -34,7 +34,7 @@ export const createExercise = async (
             correctAnswer, points, mediaUrl, sequence,
         } = req.body;
 
-        const newExercise = await prisma.exercises.create({
+        const newExercise = await prisma.exercise.create({
             data: {
                 lessonId,
                 type,
@@ -65,7 +65,7 @@ export const getExercises = async (
    try {
        const lesson_id = req.params.id;
 
-       const exercises = await prisma.exercises.findMany({
+       const exercises = await prisma.exercise.findMany({
            where: {
                lessonId: Number(lesson_id),
            }
@@ -120,7 +120,7 @@ export const updateExercise = async (
     try {
         const exerciseId = Number(req.params.id);
 
-        const updated = await prisma.exercises.update({
+        const updated = await prisma.exercise.update({
             where: { exerciseId },
             data: req.body
         });
@@ -143,7 +143,7 @@ export const deleteExercise = async (
     try {
         const exerciseId = Number(req.params.id);
 
-        await prisma.exercises.delete({
+        await prisma.exercise.delete({
             where: { exerciseId }
         });
 
