@@ -8,8 +8,10 @@ const router = Router();
 
 router.get('/', getAllCourses);
 router.post('/', authenticateToken, requirePermission('manage_course'), createCourse);
-router.post('/enrollments', enrollForCourse);
-router.patch('/:courseId', updateCourse);
-router.delete('/:courseId', deleteCourse)
+router.post('/enrollments', authenticateToken, enrollForCourse);
+router.patch('/:courseId', authenticateToken,
+    requirePermission('manage_course'), updateCourse);
+router.delete('/:courseId', authenticateToken,
+    requirePermission('manage_course'), deleteCourse);
 
 export default router;

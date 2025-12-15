@@ -268,7 +268,7 @@ enum ParticipantType {
 enum UserRole {
   user
   admin
-  contentManager @map("content_manager")
+  contentManager
   moderator
 
   @@map("user_role")
