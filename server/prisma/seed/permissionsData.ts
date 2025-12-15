@@ -1,4 +1,4 @@
-export const PERMISSIONS = [
+export const PERMISSIONS_DATA = [
     {code: 'manage_course', description: 'Create, edit, delete courses'},
     {code: 'manage_lesson', description: 'Create, edit, delete lessons'},
     {code: 'manage_exercise', description: 'Create, edit, delete exercises'},

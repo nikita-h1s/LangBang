@@ -1,11 +1,11 @@
-import {PERMISSIONS} from "./permissions";
-import {ROLE_PERMISSIONS} from "./roles";
+import {PERMISSIONS_DATA} from "./permissionsData";
+import {ROLE_PERMISSIONS} from "../../src/constants/roles";
 import {prisma} from "../../src/lib/prisma";
 import {UserRole} from "../../generated/prisma/enums";
 
 async function main() {
     await prisma.permission.createMany({
-        data: PERMISSIONS,
+        data: PERMISSIONS_DATA,
         skipDuplicates: true
     })
 

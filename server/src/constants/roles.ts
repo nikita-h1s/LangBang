@@ -1,15 +1,7 @@
+import type { PermissionCode } from '../types/permissions';
 import {UserRole} from "../../generated/prisma/enums";
 
-export type PermissionCode =
-    | 'manage_course'
-    | 'manage_lesson'
-    | 'manage_exercise'
-    | 'manage_achievement'
-    | 'delete_user'
-    | 'moderate_chat'
-    | 'ban_user';
-
-export const ROLE_PERMISSIONS: Record<UserRole, PermissionCode[]> = {
+export const ROLE_PERMISSIONS: Record<UserRole, readonly PermissionCode[]> = {
     admin: [
         'manage_course',
         'manage_lesson',
@@ -17,7 +9,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionCode[]> = {
         'manage_achievement',
         'delete_user',
         'moderate_chat',
-        'ban_user'
+        'ban_user',
     ],
     content_manager: [
         'manage_course',
@@ -27,7 +19,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionCode[]> = {
     ],
     moderator: [
         'moderate_chat',
-        'ban_user'
+        'ban_user',
     ],
-    user: []
-}
+    user: [],
+};
