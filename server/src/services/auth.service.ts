@@ -61,10 +61,18 @@ export const loginUser = async (email: string, password: string) => {
         throw new ConflictError('Invalid password.');
     }
 
+    const permissions = await prisma.rolePermission.findMany({
+        where: {role: user.role},
+        include: {permission: true}
+    })
+
+    const permissionCodes = permissions.map(p => p.permission.code);
+
     // Generate JWT token
     const token = jwt.sign({
         userId: user.userId,
-        role: user.role
+        role: user.role,
+        permissions: permissionCodes
     }, ENV.JWT_SECRET, {expiresIn: '24h'});
 
     return {

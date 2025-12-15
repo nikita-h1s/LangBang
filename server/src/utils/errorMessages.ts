@@ -1,3 +1,4 @@
+// Error messages for validation
 export const lengthError = (
     field: string,
     type: "max" | "min",

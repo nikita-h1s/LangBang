@@ -9,6 +9,9 @@
     "build": "tsc",
     "start": "node dist/server.js"
   },
+  "prisma": {
+    "seed": "ts-node ./prisma/seed/index.ts"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
