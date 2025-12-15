@@ -1,31 +1,21 @@
-import {NextFunction, Request, type Response} from 'express'
-import {prisma} from '../lib/prisma'
+import {NextFunction, Request, Response} from 'express'
+import {registerUser, loginUser} from '../services/auth.service'
+import {
+    RegisterInput,
+    LoginInput
+} from '../middlewares/validation/auth.schema'
 
-// Request body types
-interface RegisterBody {
-    username: string;
-    email: string;
-    password: string;
-}
-
-interface LoginBody {
-    email: string;
-    password: string;
-}
 
 // Register a new user
-export const register = async (req: Request<{}, {}, RegisterBody>, res: Response, next: NextFunction) => {
+export const register = async (
+    req: Request<{}, {}, RegisterInput>,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const {username, email, password} = req.body;
 
-        const newUser = await prisma.users.create({
-            data: {
-                username,
-                email,
-                password_hash: password,
-                role: 'user'
-            }
-        });
+        const newUser = await registerUser({username, email, password});
 
         res.status(201).json({
             message: 'User created successfully',
@@ -38,32 +28,22 @@ export const register = async (req: Request<{}, {}, RegisterBody>, res: Response
 
 // Log in a user
 export const login = async (
-    req: Request<{}, {}, LoginBody>,
-    res: Response, next: NextFunction
+    req: Request<{}, {}, LoginInput>,
+    res: Response,
+    next: NextFunction
 ) => {
     try {
         const {email, password} = req.body;
 
-        const user = await prisma.users.findUnique({
-            where: {email}
-        });
+        const result = await loginUser(email, password);
 
-        if (!user) {
-            return res.status(404).json({
-                message: 'User not found'
-            })
-        }
-
-        if (user.password_hash === password) {
-            res.status(200).json({
-                message: 'Login successful',
-                user: user
-            })
-        } else {
-            res.status(401).json({
-                message: 'Invalid credentials'
-            })
-        }
+        res.status(200).json(
+            {
+                message: 'User logged in successfully',
+                user: result.user,
+                token: result.token
+            }
+        );
     } catch (err) {
         next(err)
     }
