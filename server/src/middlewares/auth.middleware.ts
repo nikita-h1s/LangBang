@@ -16,9 +16,9 @@ export const authenticateToken = (
         });
     }
 
-    jwt.verify(token, ENV.JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, ENV.JWT_ACCESS_SECRET, (err, decoded) => {
         if (err) {
-            return res.status(403).json({message: "Invalid token."});
+            return res.status(403).json({message: "Access token expired or invalid."});
         }
 
         req.user = decoded as JwtPayload;

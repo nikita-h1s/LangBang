@@ -13,7 +13,7 @@ import achievementsRoutes from './routes/achievements.routes';
 import chatRoutes from './routes/chat.routes';
 
 import {errorHandler} from "./middlewares/errorHandler";
-import {authenticateToken} from "./middlewares/auth.middleware";
+import cookieParser from 'cookie-parser';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -23,6 +23,7 @@ const port = process.env.PORT || 5000;
 
 // Middlewares
 app.use(express.json());
+app.use(cookieParser());
 
 const swaggerDocument = YAML.load('./src/swagger.yaml');
 
