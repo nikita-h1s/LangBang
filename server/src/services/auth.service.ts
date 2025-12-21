@@ -9,12 +9,9 @@ import {
 } from "../utils/token";
 import jwt from "jsonwebtoken";
 import {ENV} from "../config/env";
+import {ConflictError, UnauthorizedError} from "../errors";
 
 dotenv.config();
-
-export class ConflictError extends Error {
-    status = 409;
-}
 
 export const registerUser = async (data: RegisterInput) => {
     const existingUsername = await prisma.user.findUnique(
@@ -86,7 +83,8 @@ export const loginUser = async (email: string, password: string) => {
     const accessToken = generateAccessToken({
         userId: user.userId,
         role: user.role,
-        permissions: permissionCodes
+        permissions: permissionCodes,
+        tokenVersion: user.tokenVersion
     })
 
     return {
@@ -103,7 +101,7 @@ export const loginUser = async (email: string, password: string) => {
 
 export const refreshAccessToken = async (refreshToken?: string) => {
     if (!refreshToken) {
-        throw new Error('No refresh token provided.');
+        throw new UnauthorizedError('No refresh token provided.');
     }
 
     const payload = jwt.verify(refreshToken, ENV.JWT_REFRESH_SECRET) as {userId: string};
@@ -115,13 +113,13 @@ export const refreshAccessToken = async (refreshToken?: string) => {
     );
 
     if (!existingToken) {
-        throw new Error('Invalid refresh token.');
+        throw new UnauthorizedError('Invalid refresh token.');
     }
 
     const user = await prisma.user.findUnique({where: {userId: payload.userId}});
 
     if (!user) {
-        throw new Error('User not found.');
+        throw new UnauthorizedError('User not found.');
     }
 
     const permissions = await prisma.rolePermission.findMany({
@@ -132,6 +130,7 @@ export const refreshAccessToken = async (refreshToken?: string) => {
     return generateAccessToken({
         userId: user.userId,
         role: user.role,
-        permissions: permissions.map(p => p.permission.code)
+        permissions: permissions.map(p => p.permission.code),
+        tokenVersion: user.tokenVersion
     })
 }

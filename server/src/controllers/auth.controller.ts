@@ -9,7 +9,7 @@ import {
     LoginInput
 } from '../middlewares/validation/auth.schema'
 import {ENV} from "../config/env";
-import {generateAccessToken, hashToken} from "../utils/token";
+import {hashToken} from "../utils/token";
 import {prisma} from "../lib/prisma";
 
 // Register a new user

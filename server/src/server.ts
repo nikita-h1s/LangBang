@@ -11,6 +11,7 @@ import lessonsRoutes from './routes/lessons.routes';
 import exercisesRoutes from './routes/exercises.routes'
 import achievementsRoutes from './routes/achievements.routes';
 import chatRoutes from './routes/chat.routes';
+import usersRoutes from './routes/users.routes';
 
 import {errorHandler} from "./middlewares/errorHandler";
 import cookieParser from 'cookie-parser';
@@ -37,6 +38,7 @@ app.use('/api', lessonsRoutes);
 app.use('/api', exercisesRoutes);
 app.use('/api', achievementsRoutes);
 app.use('/api', chatRoutes);
+app.use('/api', usersRoutes);
 
 app.use(errorHandler);
 

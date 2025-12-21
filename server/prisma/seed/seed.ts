@@ -2,8 +2,9 @@ import {PERMISSIONS_DATA} from "./permissionsData";
 import {ROLE_PERMISSIONS} from "../../src/constants/roles";
 import {prisma} from "../../src/lib/prisma";
 import {UserRole} from "../../generated/prisma/enums";
+import {hashPassword} from "../../src/utils/password";
 
-async function main() {
+async function seedRoles() {
     await prisma.permission.createMany({
         data: PERMISSIONS_DATA,
         skipDuplicates: true
@@ -31,6 +32,24 @@ async function main() {
     }
 }
 
+async function seedAdmin() {
+    await prisma.user.upsert({
+        where: {email: "admin@langbang.com"},
+        update: {},
+        create: {
+            username: "admin",
+            email: "admin@langbang.com",
+            passwordHash: await hashPassword('admin123'),
+            role: "admin"
+        }
+    })
+}
+
+async function main() {
+    await seedRoles();
+    await seedAdmin();
+}
+
 main()
     .then(async () => {
         console.log('Seeding done.');
@@ -41,3 +60,4 @@ main()
         await prisma.$disconnect();
         process.exit(1);
     })
+

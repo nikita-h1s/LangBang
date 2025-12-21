@@ -2,6 +2,7 @@ import {Request, Response, NextFunction} from "express";
 import {prisma} from "../lib/prisma";
 import {Prisma} from "../../generated/prisma/client"
 import {CourseLevel, EnrollmentCourseStatus} from "../../generated/prisma/enums";
+import * as courseService from "../services/courses.service";
 
 // Request body types
 type CourseBody = {
@@ -27,27 +28,7 @@ export const getAllCourses = async (
     next: NextFunction
 ) => {
     try {
-        const coursesFromDb = await prisma.course.findMany({
-            include: {
-                language: true,
-                _count: {select: {lessons: true}}
-            }
-        });
-
-        const courses = coursesFromDb.map(course => ({
-            courseId: course.courseId,
-            title: course.title,
-            description: course.description,
-            level: course.level,
-            createdAt: course.createdAt,
-            updatedAt: course.updatedAt,
-            language: {
-                id: course.language.id,
-                code: course.language.code,
-                name: course.language.name
-            },
-            lessonCount: course._count.lessons
-        }))
+        const courses = await courseService.findAllCourses();
 
         res.status(200).json({
             message: 'Courses fetched successfully',
@@ -67,24 +48,9 @@ export const createCourse = async (
     try {
         const {title, description, level, languageCode} = req.body;
 
-        const language = await prisma.language.findUnique({
-            where: {code: languageCode}
-        })
-
-        if (!language) {
-            return res.status(400).json({
-                message: 'Language not found'
-            })
-        }
-
-        const newCourse = await prisma.course.create({
-            data: {
-                title,
-                description,
-                level,
-                targetLanguageId: language.id
-            }
-        });
+        const newCourse = await courseService.createCourse(
+            {title, description, level, languageCode}
+        )
 
         res.status(201).json({
             message: 'Course created successfully',

@@ -10,6 +10,7 @@ type JwtAccessTokenPayload = {
     userId: string;
     role: string;
     permissions: string[];
+    tokenVersion: number;
 }
 
 export const generateRefreshToken = (payload: JwtRefreshTokenPayload) => {
