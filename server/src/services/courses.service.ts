@@ -1,5 +1,9 @@
 import {prisma} from "../lib/prisma";
-import {CourseLevel} from "../../generated/prisma/enums";
+import {NotFoundError} from "../errors";
+import {
+    CreateCourseInput, EnrollCourseInput,
+    UpdateCourseInput
+} from "../middlewares/validation/course.schema";
 
 export const findAllCourses = async () => {
     const coursesFromDb = await prisma.course.findMany({
@@ -26,19 +30,14 @@ export const findAllCourses = async () => {
 };
 
 export const createCourse = async (
-    data: {
-        title: string,
-        description: string,
-        level: CourseLevel,
-        languageCode: string
-    }
+    data: CreateCourseInput
 ) => {
     const language = await prisma.language.findUnique({
         where: {code: data.languageCode}
     })
 
     if (!language) {
-        return new Error('Language not found');
+        throw new NotFoundError('Language not found');
     }
 
     return prisma.course.create({
@@ -48,5 +47,67 @@ export const createCourse = async (
             level: data.level,
             targetLanguageId: language.id
         }
+    });
+}
+
+export const enrollForCourse = async (
+    data: {userId: string} & EnrollCourseInput
+) => {
+    return prisma.enrollment.create({
+        data: {
+            userId: data.userId,
+            courseId: data.courseId,
+        }
+    })
+}
+
+export const updateCourse = async (
+    data: {courseId: string} & UpdateCourseInput
+) => {
+    const course = await prisma.course.findUnique({
+        where: {courseId: parseInt(data.courseId)}
+    })
+
+    if (!course) {
+        throw new NotFoundError('Course not found');
+    }
+
+    const languageCode = data.languageCode;
+    let targetLanguageId: number | undefined = undefined;
+
+    if (languageCode) {
+        const language = await prisma.language.findUnique({
+            where: {code: languageCode}
+        })
+
+        if (!language) {
+            throw new NotFoundError('Language not found');
+        }
+
+        targetLanguageId = language.id;
+    }
+
+    return prisma.course.update({
+        where: { courseId: parseInt(data.courseId) },
+        data: {
+            title: data.title,
+            description: data.description,
+            level: data.level,
+            targetLanguageId: targetLanguageId
+        }
+    });
+}
+
+export const deleteCourse = async (courseId: string) => {
+    const course = await prisma.course.findUnique({
+        where: {courseId: parseInt(courseId)}
+    })
+
+    if (!course) {
+        throw new NotFoundError('Course not found');
+    }
+
+    return prisma.course.delete({
+        where: { courseId: parseInt(courseId)}
     });
 }

@@ -17,6 +17,7 @@ type GrantAchievementBody = {
     achievementId: number
 }
 
+// TODO: Add validation; split controllers and services
 // Creates a new achievement
 export const createAchievement = async (
     req: Request<{}, {}, AchievementBody>,

@@ -1,27 +1,18 @@
 import {Request, Response, NextFunction} from 'express';
 import {prisma} from '../lib/prisma';
-
-// Request body types
-type LanguageBody = {
-    code: string;
-    name: string;
-}
+import * as languageService from "../services/languages.service";
+import {
+    CreateLanguageInput, UpdateLanguageInput
+} from "../middlewares/validation/language.schema";
 
 // Add a new language to the database
 export const addLanguage = async (
-    req: Request<{}, {}, LanguageBody>,
+    req: Request<{}, {}, CreateLanguageInput>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const {code, name} = req.body;
-
-        const newLanguage = await prisma.language.create({
-            data: {
-                code,
-                name
-            }
-        })
+        const newLanguage = await languageService.addLanguage(req.body);
 
         res.status(201).json({
             message: 'Language created successfully',
@@ -39,13 +30,7 @@ export const getLanguages = async (
     next: NextFunction
 ) => {
     try {
-        const languages = await prisma.language.findMany({
-            select: {
-                id: true,
-                code: true,
-                name: true
-            }
-        });
+        const languages = await languageService.getLanguages();
 
         res.status(200).json({
             message: 'Languages fetched successfully',
@@ -145,17 +130,14 @@ export const getUserLanguages = async (
 
 // Update language
 export const updateLanguage = async (
-    req: Request<{ id: string }, {}, Partial<LanguageBody>>,
+    req: Request<{ id: string }, {}, UpdateLanguageInput>,
     res: Response,
     next: NextFunction
 ) => {
     try {
         const id = Number(req.params.id);
 
-        const updated = await prisma.language.update({
-            where: { id },
-            data: req.body
-        });
+        const updated = await languageService.updateLanguage({id, ...req.body})
 
         res.status(200).json({
             message: 'Language updated successfully',

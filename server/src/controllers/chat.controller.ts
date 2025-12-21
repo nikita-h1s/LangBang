@@ -8,6 +8,7 @@ type ConversationBody = {
     participantIds: string[];
 }
 
+// TODO: Add validation; split controllers and services
 export const createConversation = async (
     req: Request<{}, {}, ConversationBody>,
     res: Response,

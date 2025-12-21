@@ -5,13 +5,14 @@ import {
     refresh,
     logout
 } from '../controllers/auth.controller';
-import {validateRegister, validateLogin} from "../middlewares/validation/auth.validate";
+import {validate} from "../middlewares/validation/validate";
+import {registerSchema, loginSchema} from "../middlewares/validation/auth.schema";
 
 const router = express.Router();
 
 // Auth endpoints
-router.post('/register', validateRegister, register)
-router.post('/login', validateLogin, login)
+router.post('/register', validate(registerSchema), register)
+router.post('/login', validate(loginSchema), login)
 router.post('/logout', logout)
 router.post('/refresh', refresh)
 

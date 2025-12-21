@@ -1,25 +1,11 @@
 import {Request, Response, NextFunction} from "express";
-import {prisma} from "../lib/prisma";
 import {Prisma} from "../../generated/prisma/client"
-import {CourseLevel, EnrollmentCourseStatus} from "../../generated/prisma/enums";
 import * as courseService from "../services/courses.service";
-
-// Request body types
-type CourseBody = {
-    title: string;
-    description: string;
-    level: CourseLevel;
-    languageCode: string;
-}
-
-type EnrollmentBody = {
-    userId: string,
-    courseId: number,
-    status: EnrollmentCourseStatus,
-    progress: number,
-    completedAt: string,
-    lastLessonId: number
-}
+import {
+    CreateCourseInput,
+    EnrollCourseInput,
+    UpdateCourseInput
+} from "../middlewares/validation/course.schema";
 
 // Get all courses from the database
 export const getAllCourses = async (
@@ -41,7 +27,7 @@ export const getAllCourses = async (
 
 // Create a new course in the database
 export const createCourse = async (
-    req: Request<{}, {}, CourseBody>,
+    req: Request<{}, {}, CreateCourseInput>,
     res: Response,
     next: NextFunction
 ) => {
@@ -62,22 +48,22 @@ export const createCourse = async (
 }
 
 export const enrollForCourse = async (
-    req: Request<{}, {}, EnrollmentBody>,
+    req: Request<{}, {}, EnrollCourseInput>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const {
-            userId, courseId
-        } = req.body;
+        const userId = req.user?.userId;
 
-        const newEnrollment = await prisma.enrollment.create({
-            data: {
-                userId,
-                courseId,
-                progress: 0,
-            }
-        })
+        if (!userId) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+
+        const { courseId } = req.body;
+
+        const newEnrollment = await courseService.enrollForCourse({userId, courseId})
 
         res.status(201).json({
             message: 'Successfully enrolled in the course',
@@ -95,7 +81,7 @@ export const enrollForCourse = async (
 
 // Course update
 export const updateCourse = async (
-    req: Request,
+    req: Request<{courseId: string}, {}, UpdateCourseInput>,
     res: Response,
     next: NextFunction
 ) => {
@@ -103,14 +89,9 @@ export const updateCourse = async (
         const { courseId } = req.params;
         const { title, description, level } = req.body;
 
-        const updatedCourse = await prisma.course.update({
-            where: { courseId: parseInt(courseId) },
-            data: {
-                title,
-                description,
-                level
-            }
-        });
+        const updatedCourse = await courseService.updateCourse(
+            {courseId, title, description, level}
+        )
 
         res.status(200).json({
             message: 'Course updated successfully',
@@ -123,16 +104,14 @@ export const updateCourse = async (
 
 // Course deletion
 export const deleteCourse = async (
-    req: Request,
+    req: Request<{courseId: string}>,
     res: Response,
     next: NextFunction
 ) => {
     try {
         const { courseId } = req.params;
 
-        await prisma.course.delete({
-            where: { courseId: parseInt(courseId) }
-        });
+        await courseService.deleteCourse(courseId);
 
         res.status(204).json({
             message: 'Course deleted successfully'
