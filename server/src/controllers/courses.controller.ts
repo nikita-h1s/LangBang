@@ -1,11 +1,11 @@
 import {Request, Response, NextFunction} from "express";
-import {Prisma} from "../../generated/prisma/client"
-import * as courseService from "../services/courses.service";
+import {Prisma} from "../../generated/prisma/client.js"
+import * as courseService from "../services/courses.service.js";
 import {
     CreateCourseInput,
     EnrollCourseInput,
     UpdateCourseInput
-} from "../middlewares/validation/course.schema";
+} from "../middlewares/validation/course.schema.js";
 
 // Get all courses from the database
 export const getAllCourses = async (

@@ -1,9 +1,9 @@
-import {prisma} from "../lib/prisma";
-import {ConflictError, NotFoundError} from "../errors";
+import {prisma} from "../lib/prisma.js";
+import {ConflictError, NotFoundError} from "../errors/index.js";
 import {
     CreateCourseInput, EnrollCourseInput,
     UpdateCourseInput
-} from "../middlewares/validation/course.schema";
+} from "../middlewares/validation/course.schema.js";
 
 export const findAllCourses = async () => {
     const coursesFromDb = await prisma.course.findMany({

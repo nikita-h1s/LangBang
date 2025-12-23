@@ -1,5 +1,5 @@
-import type { PermissionCode } from '../types/permissions';
-import {UserRole} from "../../generated/prisma/enums";
+import type { PermissionCode } from '../types/permissions.js';
+import {UserRole} from "../../generated/prisma/enums.js";
 
 export const ROLE_PERMISSIONS: Record<UserRole, readonly PermissionCode[]> = {
     admin: [

@@ -1,6 +1,6 @@
 import {z} from 'zod';
-import {ExerciseType} from "../../../generated/prisma/enums";
-import {lengthError} from "../../utils/errorMessages";
+import {ExerciseType} from "../../../generated/prisma/enums.js";
+import {lengthError} from "../../utils/errorMessages.js";
 
 export const createExerciseSchema = z.object({
     lessonId: z.number(),

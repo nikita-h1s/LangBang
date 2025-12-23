@@ -1,31 +1,39 @@
 import dotenv from "dotenv";
 import express from 'express';
+import cookieParser from 'cookie-parser';
+import path from "path";
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
-import path from 'path';
 
-import authRoutes from './routes/auth.routes';
-import languagesRoutes from './routes/languages.routes';
-import coursesRoutes from './routes/courses.routes';
-import lessonsRoutes from './routes/lessons.routes';
-import exercisesRoutes from './routes/exercises.routes';
-import achievementsRoutes from './routes/achievements.routes';
-import chatRoutes from './routes/chat.routes';
-import usersRoutes from './routes/users.routes';
-
-import { errorHandler } from "./middlewares/errorHandler";
-import cookieParser from 'cookie-parser';
+import authRoutes from './routes/auth.routes.js';
+import languagesRoutes from './routes/languages.routes.js';
+import coursesRoutes from './routes/courses.routes.js';
+import lessonsRoutes from './routes/lessons.routes.js';
+import exercisesRoutes from './routes/exercises.routes.js';
+import achievementsRoutes from './routes/achievements.routes.js';
+import chatRoutes from './routes/chat.routes.js';
+import usersRoutes from './routes/users.routes.js';
+import { errorHandler } from "./middlewares/errorHandler.js";
+import {fileURLToPath} from "url";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
 
-const swaggerDocument = YAML.load(path.join(process.cwd(), './src/swagger.yaml'));
+const swaggerPath = path.join(__dirname, '../swagger.yaml');
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+try {
+  const swaggerDocument = YAML.load(swaggerPath);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+} catch (error) {
+  console.error("Помилка завантаження Swagger:", error);
+}
 
 app.use('/api', authRoutes);
 app.use('/api', languagesRoutes);
@@ -37,5 +45,13 @@ app.use('/api', chatRoutes);
 app.use('/api', usersRoutes);
 
 app.use(errorHandler);
+
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
+  });
+}
 
 export default app;

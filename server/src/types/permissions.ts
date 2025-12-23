@@ -1,3 +1,3 @@
-import {PERMISSIONS} from '../constants/permissions'
+import {PERMISSIONS} from '../constants/permissions.js'
 
 export type PermissionCode = typeof PERMISSIONS[number];

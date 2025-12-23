@@ -1,8 +1,8 @@
 import {Request, Response, NextFunction} from 'express';
-import * as exerciseService from '../services/exercises.service';
+import * as exerciseService from '../services/exercises.service.js';
 import {
     CreateExerciseInput, ExerciseProgressInput, UpdateExerciseInput
-} from "../middlewares/validation/exerices.schema";
+} from "../middlewares/validation/exerices.schema.js";
 
 // Create a new exercise
 export const createExercise = async (

@@ -6,13 +6,13 @@ import {
     getUserLanguages,
     updateLanguage,
     deleteLanguage
-} from '../controllers/languages.controller';
-import {authenticateToken} from "../middlewares/auth.middleware";
-import {requirePermission} from "../middlewares/permission.middleware";
-import {validate} from "../middlewares/validation/validate";
+} from '../controllers/languages.controller.js';
+import {authenticateToken} from "../middlewares/auth.middleware.js";
+import {requirePermission} from "../middlewares/permission.middleware.js";
+import {validate} from "../middlewares/validation/validate.js";
 import {
     createLanguageSchema, updateLanguageSchema
-} from "../middlewares/validation/language.schema";
+} from "../middlewares/validation/language.schema.js";
 
 const router = Router();
 

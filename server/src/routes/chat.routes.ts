@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import {createConversation, sendMessage, getMessages} from "../controllers/chat.controller";
-import {authenticateToken} from "../middlewares/auth.middleware";
-import {requirePermission} from "../middlewares/permission.middleware";
-import {deleteMessage} from "../controllers/chat.controller";
+import {createConversation, sendMessage, getMessages} from "../controllers/chat.controller.js";
+import {authenticateToken} from "../middlewares/auth.middleware.js";
+import {requirePermission} from "../middlewares/permission.middleware.js";
+import {deleteMessage} from "../controllers/chat.controller.js";
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
-import {Prisma} from '../../generated/prisma/client';
-import {HttpError} from "../errors";
+import {Prisma} from '../../generated/prisma/client.js';
+import {HttpError} from "../errors/index.js";
 
 // Custom error handler middleware
 export function errorHandler(

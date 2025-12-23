@@ -1,6 +1,6 @@
 import {z} from "zod";
-import {CourseLevel} from "../../../generated/prisma/enums";
-import {lengthError} from "../../utils/errorMessages";
+import {CourseLevel} from "../../../generated/prisma/enums.js";
+import {lengthError} from "../../utils/errorMessages.js";
 
 export const createCourseSchema = z.object({
     title: z.string()

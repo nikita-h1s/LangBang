@@ -3,9 +3,9 @@ import {
     createAchievement,
     getUserAchievements, grantAchievementToUser,
     updateAchievement, deleteAchievement
-} from "../controllers/achievements.controller";
-import {authenticateToken} from "../middlewares/auth.middleware";
-import {requirePermission} from "../middlewares/permission.middleware";
+} from "../controllers/achievements.controller.js";
+import {authenticateToken} from "../middlewares/auth.middleware.js";
+import {requirePermission} from "../middlewares/permission.middleware.js";
 
 const router = Router();
 

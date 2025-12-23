@@ -1,12 +1,12 @@
 import express from 'express';
 import {getExercises, createExercise, exerciseProgress,
-    updateExercise, deleteExercise, submitExercise} from "../controllers/exercises.controller";
-import {authenticateToken} from "../middlewares/auth.middleware";
-import {requirePermission} from "../middlewares/permission.middleware";
+    updateExercise, deleteExercise, submitExercise} from "../controllers/exercises.controller.js";
+import {authenticateToken} from "../middlewares/auth.middleware.js";
+import {requirePermission} from "../middlewares/permission.middleware.js";
 import {
     createExerciseSchema, exerciseProgressSchema, updateExerciseSchema
-} from "../middlewares/validation/exerices.schema";
-import {validate} from "../middlewares/validation/validate";
+} from "../middlewares/validation/exerices.schema.js";
+import {validate} from "../middlewares/validation/validate.js";
 
 const router = express.Router();
 

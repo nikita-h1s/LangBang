@@ -1,10 +1,10 @@
-import {prisma} from "../lib/prisma";
-import {NotFoundError} from "../errors";
+import {prisma} from "../lib/prisma.js";
+import {NotFoundError} from "../errors/index.js";
 import {
     CreateExerciseInput, ExerciseProgressInput, UpdateExerciseInput
-} from "../middlewares/validation/exerices.schema";
-import {Prisma} from '../../generated/prisma/client';
-import * as achievementService from "./achievements.service";
+} from "../middlewares/validation/exerices.schema.js";
+import {Prisma} from '../../generated/prisma/client.js';
+import * as achievementService from "./achievements.service.js";
 
 const createExerciseWithRetry = async (data: CreateExerciseInput, maxRetries = 3) => {
     for (let i = 0; i < maxRetries; i++) {

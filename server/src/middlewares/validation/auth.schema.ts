@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {lengthError} from "../../utils/errorMessages";
+import {lengthError} from "../../utils/errorMessages.js";
 
 export const registerSchema = z.object({
     username: z.string().trim()

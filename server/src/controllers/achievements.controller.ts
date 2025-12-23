@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
-import {prisma} from '../lib/prisma';
-import * as achievementService from '../services/achievements.service';
+import {prisma} from '../lib/prisma.js';
+import * as achievementService from '../services/achievements.service.js';
 
 // Reques body types
 type AchievementBody = {

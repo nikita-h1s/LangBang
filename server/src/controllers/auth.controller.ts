@@ -3,14 +3,14 @@ import {
     registerUser,
     loginUser,
     refreshAccessToken
-} from '../services/auth.service'
+} from '../services/auth.service.js'
 import {
     RegisterInput,
     LoginInput
-} from '../middlewares/validation/auth.schema'
-import {ENV} from "../config/env";
-import {hashToken} from "../utils/token";
-import {prisma} from "../lib/prisma";
+} from '../middlewares/validation/auth.schema.js'
+import {ENV} from "../config/env.js";
+import {hashToken} from "../utils/token.js";
+import {prisma} from "../lib/prisma.js";
 
 // Register a new user
 export const register = async (

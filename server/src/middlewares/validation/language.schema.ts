@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {lengthError} from "../../utils/errorMessages";
+import {lengthError} from "../../utils/errorMessages.js";
 
 export const createLanguageSchema = z.object({
     code: z.string().min(2, {message: lengthError("code", "min", 2)}),

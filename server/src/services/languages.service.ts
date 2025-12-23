@@ -1,7 +1,7 @@
-import {prisma} from "../lib/prisma";
+import {prisma} from "../lib/prisma.js";
 import {
     CreateLanguageInput, UpdateLanguageInput
-} from "../middlewares/validation/language.schema";
+} from "../middlewares/validation/language.schema.js";
 
 
 export const addLanguage = async (data: CreateLanguageInput) => {
