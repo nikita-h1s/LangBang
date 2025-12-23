@@ -1,27 +1,18 @@
-import { Request, Response, NextFunction } from 'express';
+import {Request, Response, NextFunction} from 'express';
 import * as lessonService from '../services/lessons.service';
-import {UpdateLessonInput} from "../middlewares/validation/lesson.schema";
-
-// Request body types
-type LessonBody = {
-    courseId: number;
-    title: string;
-    description: string;
-    sequence: number;
-};
+import {
+    CreateLessonInput,
+    UpdateLessonInput
+} from "../middlewares/validation/lesson.schema";
 
 // Create a new lesson
 export const createLesson = async (
-    req: Request<{}, {}, LessonBody>,
+    req: Request<{}, {}, CreateLessonInput>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const { courseId, title, description, sequence } = req.body;
-
-        const newLesson = await lessonService.createLesson(
-            { courseId, title, description, sequence }
-        );
+        const newLesson = await lessonService.createLesson(req.body);
 
         res.status(201).json({
             message: 'Lesson created successfully',
@@ -62,7 +53,7 @@ export const updateLesson = async (
         const lessonId = Number(req.params.id);
         const reqBody = req.body;
 
-        const updatedLesson = lessonService.updateLesson({lessonId, ...reqBody})
+        const updatedLesson = await lessonService.updateLesson({lessonId, ...reqBody})
 
         res.status(200).json({
             message: 'Lesson updated successfully',
@@ -82,10 +73,11 @@ export const deleteLesson = async (
     try {
         const lessonId = Number(req.params.id);
 
-        await lessonService.deleteLesson(lessonId);
+        const deletedLesson = await lessonService.deleteLesson(lessonId);
 
         res.status(200).json({
-            message: 'Lesson deleted successfully'
+            message: 'Lesson deleted successfully',
+            deletedLesson
         });
     } catch (err) {
         next(err);

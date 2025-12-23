@@ -9,7 +9,7 @@ export const createLessonSchema = z.object({
     description: z.string()
         .min(10, lengthError("description", "min", 10))
         .max(500, lengthError("description", "max", 500)),
-    sequence: z.number()
+    sequence: z.number().optional()
 });
 
 export const updateLessonSchema =
