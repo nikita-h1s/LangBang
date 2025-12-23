@@ -1,7 +1,7 @@
 import {Router} from 'express';
-import {deleteUser, updateUserRole} from "../controllers/users.controller";
-import {authenticateToken} from "../middlewares/auth.middleware";
-import {requirePermission} from "../middlewares/permission.middleware";
+import {deleteUser, updateUserRole} from "../controllers/users.controller.js";
+import {authenticateToken} from "../middlewares/auth.middleware.js";
+import {requirePermission} from "../middlewares/permission.middleware.js";
 
 const router = Router();
 

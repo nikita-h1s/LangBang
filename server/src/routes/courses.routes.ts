@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import {getAllCourses, createCourse, enrollForCourse,
-    updateCourse, deleteCourse, getCourseProgress} from "../controllers/courses.controller";
-import {authenticateToken} from "../middlewares/auth.middleware";
-import {requirePermission} from "../middlewares/permission.middleware";
+    updateCourse, deleteCourse, getCourseProgress} from "../controllers/courses.controller.js";
+import {authenticateToken} from "../middlewares/auth.middleware.js";
+import {requirePermission} from "../middlewares/permission.middleware.js";
 import {
     createCourseSchema, enrollCourseSchema,
     updateCourseSchema
-} from "../middlewares/validation/course.schema";
-import {validate} from "../middlewares/validation/validate";
+} from "../middlewares/validation/course.schema.js";
+import {validate} from "../middlewares/validation/validate.js";
 
 const router = Router();
 

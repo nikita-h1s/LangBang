@@ -1,15 +1,15 @@
-import {prisma} from '../lib/prisma';
-import {hashPassword, comparePassword} from "../utils/password";
-import {RegisterInput} from "../middlewares/validation/auth.schema";
+import {prisma} from '../lib/prisma.js';
+import {hashPassword, comparePassword} from "../utils/password.js";
+import {RegisterInput} from "../middlewares/validation/auth.schema.js";
 import dotenv from "dotenv";
 import {
     generateAccessToken,
     generateRefreshToken,
     hashToken
-} from "../utils/token";
+} from "../utils/token.js";
 import jwt from "jsonwebtoken";
-import {ENV} from "../config/env";
-import {ConflictError, UnauthorizedError} from "../errors";
+import {ENV} from "../config/env.js";
+import {ConflictError, UnauthorizedError} from "../errors/index.js";
 
 dotenv.config();
 

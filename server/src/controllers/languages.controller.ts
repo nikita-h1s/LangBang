@@ -1,9 +1,9 @@
 import {Request, Response, NextFunction} from 'express';
-import {prisma} from '../lib/prisma';
-import * as languageService from "../services/languages.service";
+import {prisma} from '../lib/prisma.js';
+import * as languageService from "../services/languages.service.js";
 import {
     CreateLanguageInput, UpdateLanguageInput
-} from "../middlewares/validation/language.schema";
+} from "../middlewares/validation/language.schema.js";
 
 // Add a new language to the database
 export const addLanguage = async (

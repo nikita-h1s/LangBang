@@ -1,9 +1,9 @@
 import {Request, Response, NextFunction} from 'express';
-import * as lessonService from '../services/lessons.service';
+import * as lessonService from '../services/lessons.service.js';
 import {
     CreateLessonInput,
     UpdateLessonInput
-} from "../middlewares/validation/lesson.schema";
+} from "../middlewares/validation/lesson.schema.js";
 
 // Create a new lesson
 export const createLesson = async (

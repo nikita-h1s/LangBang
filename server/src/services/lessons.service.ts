@@ -1,10 +1,10 @@
-import {prisma} from "../lib/prisma";
-import {NotFoundError} from "../errors";
+import {prisma} from "../lib/prisma.js";
+import {NotFoundError} from "../errors/index.js";
 import {
     CreateLessonInput,
     UpdateLessonInput
-} from "../middlewares/validation/lesson.schema";
-import {Prisma} from '../../generated/prisma/client';
+} from "../middlewares/validation/lesson.schema.js";
+import {Prisma} from '../../generated/prisma/client.js';
 
 
 const createLessonWithRetry = async (data: CreateLessonInput, maxRetries = 3) => {

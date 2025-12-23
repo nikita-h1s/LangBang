@@ -1,4 +1,4 @@
-import {prisma} from "../lib/prisma";
+import {prisma} from "../lib/prisma.js";
 
 export const grantAchievement = async (userId: string, achievementId: number) => {
     const existing = await prisma.userAchievement.findUnique({

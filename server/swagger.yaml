@@ -3,8 +3,10 @@ info:
   title: LangBang OpenAPI specification
   version: 1.0.0
 servers:
+  - url: https://lang-bang.vercel.app/api
+    description: Production Server (Vercel)
   - url: http://localhost:5000/api
-    description: Dev server
+    description: Local Development
 security:
   - BearerAuth: [ ]
 paths:

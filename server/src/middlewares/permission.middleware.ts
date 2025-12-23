@@ -1,4 +1,4 @@
-import {PermissionCode} from "../types/permissions";
+import {PermissionCode} from "../types/permissions.js";
 import {Request, Response, NextFunction} from "express";
 
 export const requirePermission =

@@ -1,4 +1,4 @@
-import {prisma} from "../lib/prisma";
+import {prisma} from "../lib/prisma.js";
 
 export const deleteMessage = async (conversationId: string, messageId: string) => {
     const message = await prisma.message.findUnique({where: {messageId: messageId}});

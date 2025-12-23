@@ -4,10 +4,10 @@ import {
     login,
     refresh,
     logout
-} from '../controllers/auth.controller';
-import {validate} from "../middlewares/validation/validate";
-import {registerSchema, loginSchema} from "../middlewares/validation/auth.schema";
-import {authenticateToken} from "../middlewares/auth.middleware";
+} from '../controllers/auth.controller.js';
+import {validate} from "../middlewares/validation/validate.js";
+import {registerSchema, loginSchema} from "../middlewares/validation/auth.schema.js";
+import {authenticateToken} from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 

@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction} from "express";
-import {prisma} from "../lib/prisma";
-import * as chatService from "../services/chat.service";
+import {prisma} from "../lib/prisma.js";
+import * as chatService from "../services/chat.service.js";
 
 // Request body types
 type ConversationBody = {
