@@ -1,11 +1,20 @@
 import express from 'express';
-import {register, login} from '../controllers/auth.controller';
-import {validateRegister, validateLogin} from "../middlewares/validation/auth.validate";
+import {
+    register,
+    login,
+    refresh,
+    logout
+} from '../controllers/auth.controller';
+import {validate} from "../middlewares/validation/validate";
+import {registerSchema, loginSchema} from "../middlewares/validation/auth.schema";
+import {authenticateToken} from "../middlewares/auth.middleware";
 
 const router = express.Router();
 
 // Auth endpoints
-router.post('/register', validateRegister, register)
-router.post('/login', validateLogin, login)
+router.post('/register', validate(registerSchema), register)
+router.post('/login', validate(loginSchema), login)
+router.post('/logout', authenticateToken, logout)
+router.post('/refresh', refresh)
 
 export default router;

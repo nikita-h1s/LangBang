@@ -11,9 +11,10 @@ import lessonsRoutes from './routes/lessons.routes';
 import exercisesRoutes from './routes/exercises.routes'
 import achievementsRoutes from './routes/achievements.routes';
 import chatRoutes from './routes/chat.routes';
+import usersRoutes from './routes/users.routes';
 
 import {errorHandler} from "./middlewares/errorHandler";
-import {authenticateToken} from "./middlewares/auth.middleware";
+import cookieParser from 'cookie-parser';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -23,6 +24,7 @@ const port = process.env.PORT || 5000;
 
 // Middlewares
 app.use(express.json());
+app.use(cookieParser());
 
 const swaggerDocument = YAML.load('./src/swagger.yaml');
 
@@ -36,6 +38,7 @@ app.use('/api', lessonsRoutes);
 app.use('/api', exercisesRoutes);
 app.use('/api', achievementsRoutes);
 app.use('/api', chatRoutes);
+app.use('/api', usersRoutes);
 
 app.use(errorHandler);
 

@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
 import {Prisma} from '../../generated/prisma/client';
-import {ConflictError} from "../services/auth.service";
+import {HttpError} from "../errors";
 
 // Custom error handler middleware
 export function errorHandler(
@@ -26,12 +26,9 @@ export function errorHandler(
         });
     }
 
-    // Check if an error is a ConflictError
-    if (err instanceof ConflictError) {
-        return res.status(409).json({
-            message: "Conflict error",
-            error: err.message
-        })
+    // Check if an error is an instance of HttpError
+    if (err instanceof HttpError) {
+        return res.status(err.status).json({message: err.message})
     }
 
     // Check if an error is an instance of Error

@@ -1,51 +1,19 @@
 import {Request, Response, NextFunction} from 'express';
-import {prisma} from '../lib/prisma';
-import {ExerciseType} from '../../generated/prisma/enums'
-
-// Request body types
-type ExerciseBody = {
-    lessonId: number,
-    type: ExerciseType,
-    question: string,
-    metadata: object,
-    points: number,
-    correctAnswer: string,
-    mediaUrl: string,
-    sequence: number,
-}
-
-type ExerciseProgressBody = {
-    userId: string,
-    exerciseId: number,
-    isCorrect: boolean,
-    earnedPoints: number,
-    attemptNumber: number
-}
+import * as exerciseService from '../services/exercises.service';
+import {
+    CreateExerciseInput, ExerciseProgressInput, UpdateExerciseInput
+} from "../middlewares/validation/exerices.schema";
 
 // Create a new exercise
 export const createExercise = async (
-    req: Request<{}, {}, ExerciseBody>,
+    req: Request<{}, {}, CreateExerciseInput>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const {
-            lessonId, type, question, metadata,
-            correctAnswer, points, mediaUrl, sequence,
-        } = req.body;
+        const reqBody = req.body;
 
-        const newExercise = await prisma.exercise.create({
-            data: {
-                lessonId,
-                type,
-                question,
-                metadata: metadata || {},
-                points,
-                correctAnswer,
-                mediaUrl,
-                sequence
-            }
-        })
+        const newExercise = await exerciseService.createExercise(reqBody)
 
         res.status(200).json({
             message: 'Exercise created successfully.',
@@ -62,45 +30,30 @@ export const getExercises = async (
     res: Response,
     next: NextFunction
 ) => {
-   try {
-       const lesson_id = req.params.id;
+    try {
+        const lessonId = Number(req.params.id);
 
-       const exercises = await prisma.exercise.findMany({
-           where: {
-               lessonId: Number(lesson_id),
-           }
-       })
+        const exercises = await exerciseService.getExercises(lessonId);
 
-       res.status(200).json({
-           message: 'Exercises fetched successfully.',
-           exercises,
-       })
-   } catch (err) {
-       next(err)
-   }
+        res.status(200).json({
+            message: 'Exercises fetched successfully.',
+            exercises,
+        })
+    } catch (err) {
+        next(err)
+    }
 }
 
 // Record exercise progress
 export const exerciseProgress = async (
-    req: Request<{}, {}, ExerciseProgressBody>,
+    req: Request<{}, {}, ExerciseProgressInput>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const {
-            userId, exerciseId, isCorrect,
-            earnedPoints, attemptNumber
-        } = req.body;
+        const reqBody = req.body;
 
-        const newExerciseProgress = await prisma.exerciseProgress.create({
-            data: {
-               userId,
-               exerciseId,
-               isCorrect,
-               earnedPoints,
-               attemptNumber,
-            }
-        })
+        const newExerciseProgress = await exerciseService.exerciseProgress(reqBody)
 
         res.status(201).json({
             message: 'Exercise progress recorded successfully.',
@@ -113,17 +66,17 @@ export const exerciseProgress = async (
 
 // Update exercise
 export const updateExercise = async (
-    req: Request<{ id: string }, {}, Partial<ExerciseBody>>,
+    req: Request<{ id: string }, {}, UpdateExerciseInput>,
     res: Response,
     next: NextFunction
 ) => {
     try {
         const exerciseId = Number(req.params.id);
+        const reqBody = req.body;
 
-        const updated = await prisma.exercise.update({
-            where: { exerciseId },
-            data: req.body
-        });
+        const updated = await exerciseService.updateExercise(
+            {exerciseId, ...reqBody}
+        );
 
         res.status(200).json({
             message: "Exercise updated successfully.",
@@ -143,14 +96,42 @@ export const deleteExercise = async (
     try {
         const exerciseId = Number(req.params.id);
 
-        await prisma.exercise.delete({
-            where: { exerciseId }
-        });
+        const deletedExercise = await exerciseService.deleteExercise(exerciseId);
 
         res.status(200).json({
-            message: "Exercise deleted successfully."
+            message: "Exercise deleted successfully.",
+            deletedExercise
         });
     } catch (err) {
         next(err);
     }
 };
+
+export const submitExercise = async (
+    req: Request<{id: string}>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const userId = req.user?.userId;
+        const exerciseId = Number(req.params.id);
+        const userAnswer = req.body.answer;
+
+        if (!userId) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+
+        const submittedExercise = await exerciseService.submitExercise(userId, exerciseId, userAnswer);
+
+        res.status(200).json({
+            message: "Exercise submitted successfully.",
+            submittedExercise
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+

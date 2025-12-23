@@ -1,8 +1,10 @@
 import {NextFunction, Request, Response} from 'express'
-import jwt, {JwtPayload} from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import {ENV} from '../config/env';
+import {prisma} from "../lib/prisma";
+import {CustomJwtPayload} from "../types/express";
 
-export const authenticateToken = (
+export const authenticateToken = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -16,12 +18,22 @@ export const authenticateToken = (
         });
     }
 
-    jwt.verify(token, ENV.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            return res.status(403).json({message: "Invalid token."});
+    try {
+        const decoded = jwt.verify(token, ENV.JWT_ACCESS_SECRET) as CustomJwtPayload;
+
+        const user = await prisma.user.findUnique({where: {userId: decoded.userId}});
+
+        if (!user) {
+            return res.status(404).json({message: "User not found."});
         }
 
-        req.user = decoded as JwtPayload;
+        if (decoded.tokenVersion !== user.tokenVersion) {
+            return res.status(401).json({message: "Access token expired or invalid."});
+        }
+
+        req.user = decoded;
         next();
-    })
+    } catch (err) {
+        next(err);
+    }
 }

@@ -1,26 +1,18 @@
-import { Request, Response, NextFunction } from 'express';
-import { prisma } from '../lib/prisma';
-
-// Request body types
-type LessonBody = {
-    courseId: number;
-    title: string;
-    description: string;
-    sequence: number;
-};
+import {Request, Response, NextFunction} from 'express';
+import * as lessonService from '../services/lessons.service';
+import {
+    CreateLessonInput,
+    UpdateLessonInput
+} from "../middlewares/validation/lesson.schema";
 
 // Create a new lesson
 export const createLesson = async (
-    req: Request<{}, {}, LessonBody>,
+    req: Request<{}, {}, CreateLessonInput>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const { courseId, title, description, sequence } = req.body;
-
-        const newLesson = await prisma.lesson.create({
-            data: { courseId, title, description, sequence }
-        });
+        const newLesson = await lessonService.createLesson(req.body);
 
         res.status(201).json({
             message: 'Lesson created successfully',
@@ -38,12 +30,9 @@ export const getLessons = async (
     next: NextFunction
 ) => {
     try {
-        const course_id = Number(req.params.id);
+        const courseId = Number(req.params.id);
 
-        const lessons = await prisma.lesson.findMany({
-            where: { courseId: course_id },
-            orderBy: { sequence: 'asc' }
-        });
+        const lessons = await lessonService.getLessons(courseId);
 
         res.status(200).json({
             message: 'Lessons fetched successfully',
@@ -56,17 +45,15 @@ export const getLessons = async (
 
 // Update lesson
 export const updateLesson = async (
-    req: Request<{ id: string }, {}, Partial<LessonBody>>,
+    req: Request<{ id: string }, {}, UpdateLessonInput>,
     res: Response,
     next: NextFunction
 ) => {
     try {
         const lessonId = Number(req.params.id);
+        const reqBody = req.body;
 
-        const updatedLesson = await prisma.lesson.update({
-            where: { lessonId: lessonId },
-            data: req.body
-        });
+        const updatedLesson = await lessonService.updateLesson({lessonId, ...reqBody})
 
         res.status(200).json({
             message: 'Lesson updated successfully',
@@ -86,12 +73,11 @@ export const deleteLesson = async (
     try {
         const lessonId = Number(req.params.id);
 
-        await prisma.lesson.delete({
-            where: { lessonId: lessonId }
-        });
+        const deletedLesson = await lessonService.deleteLesson(lessonId);
 
         res.status(200).json({
-            message: 'Lesson deleted successfully'
+            message: 'Lesson deleted successfully',
+            deletedLesson
         });
     } catch (err) {
         next(err);

@@ -1,5 +1,6 @@
 import {Request, Response, NextFunction} from "express";
 import {prisma} from "../lib/prisma";
+import * as chatService from "../services/chat.service";
 
 // Request body types
 type ConversationBody = {
@@ -8,6 +9,7 @@ type ConversationBody = {
     participantIds: string[];
 }
 
+// TODO: Add validation; split controllers and services
 export const createConversation = async (
     req: Request<{}, {}, ConversationBody>,
     res: Response,
@@ -94,3 +96,23 @@ export const getMessages = async (
         next(err)
     }
 };
+
+export const deleteMessage = async (
+    req: Request<{ conversationId: string, messageId: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { conversationId, messageId } = req.params;
+
+        const deletedMessage = await
+            chatService.deleteMessage(conversationId, messageId);
+
+        res.status(200).json({
+            message: "Message deleted successfully",
+            deletedMessage
+        });
+    } catch (err) {
+        next(err);
+    }
+}

@@ -1,15 +1,17 @@
 import {prisma} from '../lib/prisma';
 import {hashPassword, comparePassword} from "../utils/password";
 import {RegisterInput} from "../middlewares/validation/auth.schema";
-import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import {ENV} from '../config/env';
+import {
+    generateAccessToken,
+    generateRefreshToken,
+    hashToken
+} from "../utils/token";
+import jwt from "jsonwebtoken";
+import {ENV} from "../config/env";
+import {ConflictError, UnauthorizedError} from "../errors";
 
 dotenv.config();
-
-export class ConflictError extends Error {
-    status = 409;
-}
 
 export const registerUser = async (data: RegisterInput) => {
     const existingUsername = await prisma.user.findUnique(
@@ -68,15 +70,26 @@ export const loginUser = async (email: string, password: string) => {
 
     const permissionCodes = permissions.map(p => p.permission.code);
 
-    // Generate JWT token
-    const token = jwt.sign({
+    const refreshToken = generateRefreshToken({userId: user.userId});
+
+    await prisma.refreshToken.create({
+        data: {
+            tokenHash: hashToken(refreshToken),
+            userId: user.userId,
+            expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)
+        }
+    })
+
+    const accessToken = generateAccessToken({
         userId: user.userId,
         role: user.role,
-        permissions: permissionCodes
-    }, ENV.JWT_SECRET, {expiresIn: '24h'});
+        permissions: permissionCodes,
+        tokenVersion: user.tokenVersion
+    })
 
     return {
-        token,
+        refreshToken,
+        accessToken,
         user: {
             id: user.userId,
             email: user.email,
@@ -84,4 +97,40 @@ export const loginUser = async (email: string, password: string) => {
             role: user.role
         }
     };
+}
+
+export const refreshAccessToken = async (refreshToken?: string) => {
+    if (!refreshToken) {
+        throw new UnauthorizedError('No refresh token provided.');
+    }
+
+    const payload = jwt.verify(refreshToken, ENV.JWT_REFRESH_SECRET) as {userId: string};
+
+    const tokenHash = hashToken(refreshToken);
+
+    const existingToken = await prisma.refreshToken.findUnique(
+        {where: {tokenHash}}
+    );
+
+    if (!existingToken) {
+        throw new UnauthorizedError('Invalid refresh token.');
+    }
+
+    const user = await prisma.user.findUnique({where: {userId: payload.userId}});
+
+    if (!user) {
+        throw new UnauthorizedError('User not found.');
+    }
+
+    const permissions = await prisma.rolePermission.findMany({
+        where: {role: user.role},
+        include: {permission: true}
+    })
+
+    return generateAccessToken({
+        userId: user.userId,
+        role: user.role,
+        permissions: permissions.map(p => p.permission.code),
+        tokenVersion: user.tokenVersion
+    })
 }

@@ -1,10 +1,16 @@
 import {NextFunction, Request, Response} from 'express'
-import {registerUser, loginUser} from '../services/auth.service'
+import {
+    registerUser,
+    loginUser,
+    refreshAccessToken
+} from '../services/auth.service'
 import {
     RegisterInput,
     LoginInput
 } from '../middlewares/validation/auth.schema'
-
+import {ENV} from "../config/env";
+import {hashToken} from "../utils/token";
+import {prisma} from "../lib/prisma";
 
 // Register a new user
 export const register = async (
@@ -37,14 +43,56 @@ export const login = async (
 
         const result = await loginUser(email, password);
 
+        res.cookie('refreshToken', result.refreshToken, {
+            httpOnly: true,
+            secure: ENV.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 * 24 * 7
+        })
+
         res.status(200).json(
             {
                 message: 'User logged in successfully',
                 user: result.user,
-                token: result.token
+                token: result.accessToken
             }
         );
     } catch (err) {
         next(err)
+    }
+}
+
+export const refresh = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+
+        const accessToken = await refreshAccessToken(refreshToken);
+
+        res.json({accessToken});
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const logout = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+
+        if (refreshToken) {
+            await prisma.refreshToken.delete({where: {tokenHash: hashToken(refreshToken)}});
+        }
+
+        res.clearCookie('refreshToken');
+        res.status(200).json({message: 'User logged out successfully'});
+    } catch (err) {
+        next(err);
     }
 }

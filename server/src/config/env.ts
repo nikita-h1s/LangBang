@@ -10,6 +10,8 @@ const required = (key: string): string => {
 
 export const ENV = {
     PORT: required('PORT'),
-    JWT_SECRET: required('JWT_SECRET'),
-    DATABASE_URL: required('DATABASE_URL')
+    JWT_ACCESS_SECRET: required('JWT_ACCESS_SECRET'),
+    JWT_REFRESH_SECRET: required('JWT_REFRESH_SECRET'),
+    DATABASE_URL: required('DATABASE_URL'),
+    NODE_ENV: required('NODE_ENV') || 'development',
 }
