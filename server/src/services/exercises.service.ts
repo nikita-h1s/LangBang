@@ -278,3 +278,32 @@ export const updateExercise = async (data:
 export const deleteExercise = async (exerciseId: number) => {
     return deleteExerciseWithRetry(exerciseId);
 }
+
+export const submitExercise = async (userId: string, exerciseId: number, userAnswer: string) => {
+    const exercise = await prisma.exercise.findUnique({
+        where: {exerciseId: exerciseId}
+    })
+
+    if (!exercise) {
+        throw new NotFoundError('Exercise not found');
+    }
+
+    const userFormattedAnswer = userAnswer.toLowerCase().trim();
+    const exerciseFormattedCorrectAnswer = exercise.correctAnswer.toLowerCase().trim();
+    const isCorrect = exerciseFormattedCorrectAnswer === userFormattedAnswer;
+
+    const attemptsCount = await prisma.exerciseProgress.count({
+        where: {userId, exerciseId}
+    })
+
+    return prisma.exerciseProgress.create({
+        data: {
+            userId,
+            exerciseId,
+            userAnswer,
+            isCorrect,
+            earnedPoints: isCorrect ? (exercise.points || 0) : 0,
+            attemptNumber: attemptsCount + 1
+        }
+    })
+}

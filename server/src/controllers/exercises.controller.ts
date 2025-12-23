@@ -96,12 +96,42 @@ export const deleteExercise = async (
     try {
         const exerciseId = Number(req.params.id);
 
-        await exerciseService.deleteExercise(exerciseId);
+        const deletedExercise = await exerciseService.deleteExercise(exerciseId);
 
         res.status(200).json({
-            message: "Exercise deleted successfully."
+            message: "Exercise deleted successfully.",
+            deletedExercise
         });
     } catch (err) {
         next(err);
     }
 };
+
+export const submitExercise = async (
+    req: Request<{id: string}>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const userId = req.user?.userId;
+        const exerciseId = Number(req.params.id);
+        const userAnswer = req.body.answer;
+
+        if (!userId) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+
+        const submittedExercise = await exerciseService.submitExercise(userId, exerciseId, userAnswer);
+
+        res.status(200).json({
+            message: "Exercise submitted successfully.",
+            submittedExercise
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+

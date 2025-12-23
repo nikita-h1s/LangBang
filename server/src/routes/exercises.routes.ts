@@ -1,6 +1,6 @@
 import express from 'express';
 import {getExercises, createExercise, exerciseProgress,
-    updateExercise, deleteExercise} from "../controllers/exercises.controller";
+    updateExercise, deleteExercise, submitExercise} from "../controllers/exercises.controller";
 import {authenticateToken} from "../middlewares/auth.middleware";
 import {requirePermission} from "../middlewares/permission.middleware";
 import {
@@ -15,6 +15,7 @@ router.post('/exercises', authenticateToken,
 router.get('/lessons/:id/exercises', authenticateToken,
     requirePermission('manage_exercise'), getExercises);
 router.post('/exercises/progress', authenticateToken, validate(exerciseProgressSchema), exerciseProgress);
+router.post('/exercises/:id/submit', authenticateToken, submitExercise)
 router.patch('/exercises/:id', authenticateToken,
     requirePermission('manage_exercise'), validate(updateExerciseSchema), updateExercise);
 router.delete('/exercises/:id', authenticateToken,

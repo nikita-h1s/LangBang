@@ -19,6 +19,7 @@ export const exerciseProgressSchema = z.object({
     userId: z.uuid(),
     exerciseId: z.number(),
     isCorrect: z.boolean(),
+    userAnswer: z.string(),
     earnedPoints: z.number(),
     attemptNumber: z.number()
 })

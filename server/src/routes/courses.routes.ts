@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {getAllCourses, createCourse, enrollForCourse,
-    updateCourse, deleteCourse} from "../controllers/courses.controller";
+    updateCourse, deleteCourse, getCourseProgress} from "../controllers/courses.controller";
 import {authenticateToken} from "../middlewares/auth.middleware";
 import {requirePermission} from "../middlewares/permission.middleware";
 import {
@@ -15,6 +15,7 @@ router.get('/', getAllCourses);
 router.post('/', authenticateToken, requirePermission('manage_course'),
     validate(createCourseSchema), createCourse);
 router.post('/enrollments', authenticateToken, validate(enrollCourseSchema), enrollForCourse);
+router.get('/:courseId/progress', authenticateToken, getCourseProgress)
 router.patch('/:courseId', authenticateToken,
     requirePermission('manage_course'), validate(updateCourseSchema), updateCourse);
 router.delete('/:courseId', authenticateToken,

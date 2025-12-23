@@ -120,3 +120,29 @@ export const deleteCourse = async (
         next(err);
     }
 };
+
+export const getCourseProgress = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const userId = req.user?.userId;
+        const courseId = req.params.courseId;
+
+        if (!userId) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+
+        const courseProgress = await courseService.getCourseProgress(userId, courseId)
+
+        res.status(200).json({
+            message: 'Course progress fetched successfully',
+            courseProgress
+        })
+    } catch (err) {
+        next(err);
+    }
+}

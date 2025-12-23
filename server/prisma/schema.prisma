@@ -65,6 +65,7 @@ model Course {
   @@map("courses")
 }
 
+// TODO: add progress field
 model Enrollment {
   userId       String                 @map("user_id") @db.Uuid
   courseId     Int                    @map("course_id")
@@ -89,6 +90,7 @@ model ExerciseProgress {
   isCorrect     Boolean   @map("is_correct")
   earnedPoints  Int?      @default(0) @map("earned_points")
   attemptNumber Int?      @default(1) @map("attempt_number")
+  userAnswer    String?   @map("user_answer")
   createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt     DateTime? @default(now()) @map("updated_at") @db.Timestamp(6)
 
