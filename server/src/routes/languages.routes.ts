@@ -16,7 +16,7 @@ import {
 
 const router = Router();
 
-router.get('/languages', authenticateToken, getLanguages);
+router.get('/languages', getLanguages);
 router.get('/users/:userId/languages', authenticateToken, getUserLanguages);
 router.post('/languages', authenticateToken,
     requirePermission('manage_language'), validate(createLanguageSchema), addLanguage);

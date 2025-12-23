@@ -1,5 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
 import {prisma} from '../lib/prisma';
+import * as achievementService from '../services/achievements.service';
 
 // Reques body types
 type AchievementBody = {
@@ -83,27 +84,8 @@ export const grantAchievementToUser = async (
     try {
         const {userId, achievementId} = req.params;
 
-        const existing = await prisma.userAchievement.findUnique({
-            where: {
-                userId_achievementId: {
-                    userId,
-                    achievementId: Number(achievementId)
-                }
-            }
-        })
-
-        if (existing) {
-            return res.status(409).json({
-                message: 'Achievement already granted to user.'
-            })
-        }
-
-        const newUserAchievement = await prisma.userAchievement.create({
-            data: {
-                userId,
-                achievementId: Number(achievementId),
-            }
-        });
+        const newUserAchievement = await
+            achievementService.grantAchievement(userId, Number(achievementId));
 
         res.status(201).json({
             message: 'Achievement granted successfully.',

@@ -4,7 +4,7 @@ import {
     CreateExerciseInput, ExerciseProgressInput, UpdateExerciseInput
 } from "../middlewares/validation/exerices.schema";
 import {Prisma} from '../../generated/prisma/client';
-import {UpdateLessonInput} from "../middlewares/validation/lesson.schema";
+import * as achievementService from "./achievements.service";
 
 const createExerciseWithRetry = async (data: CreateExerciseInput, maxRetries = 3) => {
     for (let i = 0; i < maxRetries; i++) {
@@ -296,7 +296,7 @@ export const submitExercise = async (userId: string, exerciseId: number, userAns
         where: {userId, exerciseId}
     })
 
-    return prisma.exerciseProgress.create({
+    const newProgress = await prisma.exerciseProgress.create({
         data: {
             userId,
             exerciseId,
@@ -306,4 +306,10 @@ export const submitExercise = async (userId: string, exerciseId: number, userAns
             attemptNumber: attemptsCount + 1
         }
     })
+
+    achievementService.checkAndUnlockAchievements(userId).catch(err => {
+        console.error("Achievement check failed:", err);
+    });
+
+    return newProgress
 }

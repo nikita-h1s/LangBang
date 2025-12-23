@@ -11,7 +11,7 @@ export const createExerciseSchema = z.object({
     correctAnswer: z.string(),
     mediaUrl: z.string().nullish(),
     points: z.number().optional().default(1),
-    sequence: z.number(),
+    sequence: z.number().optional(),
     metadata: z.record(z.string(), z.any()).optional().default({}),
 });
 

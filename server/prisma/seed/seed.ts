@@ -3,6 +3,7 @@ import {ROLE_PERMISSIONS} from "../../src/constants/roles";
 import {prisma} from "../../src/lib/prisma";
 import {UserRole} from "../../generated/prisma/enums";
 import {hashPassword} from "../../src/utils/password";
+import {ACHIEVEMENTS_DATA} from "./achievementsData";
 
 async function seedRoles() {
     await prisma.permission.createMany({
@@ -45,9 +46,17 @@ async function seedAdmin() {
     })
 }
 
+async function seedAchievements() {
+    await prisma.achievement.createMany({
+        data: ACHIEVEMENTS_DATA,
+        skipDuplicates: true
+    })
+}
+
 async function main() {
     await seedRoles();
     await seedAdmin();
+    await seedAchievements();
 }
 
 main()
