@@ -6,7 +6,7 @@
     "rootDir": ".",
     "outDir": "./dist",
 
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 
