@@ -7,6 +7,7 @@ import {
 import {Prisma} from '../../generated/prisma/client.js';
 
 
+// TODO: create generalized function for sequence logic
 const createLessonWithRetry = async (data: CreateLessonInput, maxRetries = 3) => {
     for (let i = 0; i < maxRetries; i++) {
         try {

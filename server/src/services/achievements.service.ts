@@ -1,6 +1,34 @@
 import {prisma} from "../lib/prisma.js";
+import {
+    CreateAchievementInput, UpdateAchievementInput
+} from "../middlewares/validation/achievement.schema";
+import {ConflictError} from "../errors";
 
-export const grantAchievement = async (userId: string, achievementId: number) => {
+export const createAchievement = async (data: CreateAchievementInput) => {
+    return prisma.achievement.create({ data })
+}
+
+export const getUserAchievements = async (userId: string) => {
+    return prisma.userAchievement.findMany({
+        where: { userId },
+        include: { achievement: true }
+    })
+}
+
+export const updateAchievement = async (
+    achievementId: number, data: UpdateAchievementInput
+) => {
+    return prisma.achievement.update({
+        where: { achievementId },
+        data
+    })
+}
+
+export const deleteAchievement = async (id: number) => {
+    return prisma.achievement.delete({ where: { achievementId: id } })
+}
+
+export const grantAchievementToUser = async (userId: string, achievementId: number) => {
     const existing = await prisma.userAchievement.findUnique({
         where: {
             userId_achievementId: {
@@ -11,7 +39,7 @@ export const grantAchievement = async (userId: string, achievementId: number) =>
     });
 
     if (existing) {
-        throw new Error('ACHIEVEMENT_ALREADY_GRANTED');
+        throw new ConflictError('Achievement already granted to user.');
     }
 
     return prisma.userAchievement.create({

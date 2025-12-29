@@ -6,6 +6,7 @@ import {
 import {Prisma} from '../../generated/prisma/client.js';
 import * as achievementService from "./achievements.service.js";
 
+
 const createExerciseWithRetry = async (data: CreateExerciseInput, maxRetries = 3) => {
     for (let i = 0; i < maxRetries; i++) {
         try {
@@ -279,7 +280,9 @@ export const deleteExercise = async (exerciseId: number) => {
     return deleteExerciseWithRetry(exerciseId);
 }
 
-export const submitExercise = async (userId: string, exerciseId: number, userAnswer: string) => {
+export const submitExercise = async (
+    userId: string, exerciseId: number, userAnswer: string
+) => {
     const exercise = await prisma.exercise.findUnique({
         where: {exerciseId: exerciseId}
     })

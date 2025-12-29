@@ -1,47 +1,20 @@
 import {Request, Response, NextFunction} from 'express';
 import {prisma} from '../lib/prisma.js';
 import * as achievementService from '../services/achievements.service.js';
+import {
+    CreateAchievementInput, UpdateAchievementInput
+} from "../middlewares/validation/achievement.schema";
 
-// Reques body types
-type AchievementBody = {
-    code: string,
-    title: string,
-    description: string,
-    category: string,
-    iconUrl: string,
-    conditionType: string,
-    conditionValue: number
-}
 
-type GrantAchievementBody = {
-    userId: string,
-    achievementId: number
-}
-
-// TODO: Add validation; split controllers and services
-// Creates a new achievement
 export const createAchievement = async (
-    req: Request<{}, {}, AchievementBody>,
+    req: Request<{}, {}, CreateAchievementInput>,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const {
-            code, title, description, category,
-            iconUrl, conditionType, conditionValue
-        } = req.body;
+        const reqBody = req.body;
 
-        const newAchievement = await prisma.achievement.create({
-            data: {
-                code,
-                title,
-                description,
-                category,
-                iconUrl,
-                conditionType,
-                conditionValue
-            }
-        })
+        const newAchievement = await achievementService.createAchievement(reqBody);
 
         res.status(201).json({
             message: 'Achievement created successfully.',
@@ -60,12 +33,7 @@ export const getUserAchievements = async (
     try {
         const {userId} = req.params;
 
-        const userAchievements = await prisma.userAchievement.findMany({
-            where: {userId},
-            include: {
-                achievement: true
-            }
-        })
+        const userAchievements = await achievementService.getUserAchievements(userId);
 
         res.status(200).json({
             message: 'User achievements fetched successfully.',
@@ -85,7 +53,7 @@ export const grantAchievementToUser = async (
         const {userId, achievementId} = req.params;
 
         const newUserAchievement = await
-            achievementService.grantAchievement(userId, Number(achievementId));
+            achievementService.grantAchievementToUser(userId, Number(achievementId));
 
         res.status(201).json({
             message: 'Achievement granted successfully.',
@@ -97,17 +65,16 @@ export const grantAchievementToUser = async (
 }
 
 export const updateAchievement = async (
-    req: Request<{ id: string }, {}, Partial<AchievementBody>>,
+    req: Request<{ id: string }, {}, UpdateAchievementInput>,
     res: Response,
     next: NextFunction
 ) => {
     try {
         const achievementId = Number(req.params.id);
 
-        const updated = await prisma.achievement.update({
-            where: { achievementId },
-            data: req.body
-        });
+        const updated = await achievementService.updateAchievement(
+            achievementId, req.body
+        )
 
         res.status(200).json({
             message: 'Achievement updated successfully.',
@@ -126,12 +93,12 @@ export const deleteAchievement = async (
     try {
         const achievementId = Number(req.params.id);
 
-        await prisma.achievement.delete({
-            where: { achievementId }
-        });
+        const deletedAchievement = await achievementService
+            .deleteAchievement(achievementId);
 
         res.status(200).json({
-            message: 'Achievement deleted successfully.'
+            message: 'Achievement deleted successfully.',
+            deletedAchievement
         });
     } catch (err) {
         next(err);
