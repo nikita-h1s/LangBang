@@ -108,7 +108,7 @@ export const deleteExercise = async (
 };
 
 export const submitExercise = async (
-    req: Request<{id: string}>,
+    req: Request<{id: string}, {}, {answer: string}>,
     res: Response,
     next: NextFunction
 ) => {
@@ -123,7 +123,8 @@ export const submitExercise = async (
             })
         }
 
-        const submittedExercise = await exerciseService.submitExercise(userId, exerciseId, userAnswer);
+        const submittedExercise = await exerciseService
+            .submitExercise(userId, exerciseId, userAnswer);
 
         res.status(200).json({
             message: "Exercise submitted successfully.",

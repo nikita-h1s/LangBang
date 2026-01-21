@@ -14,4 +14,7 @@ export const ENV = {
     JWT_REFRESH_SECRET: required('JWT_REFRESH_SECRET'),
     DATABASE_URL: required('DATABASE_URL'),
     NODE_ENV: required('NODE_ENV') || 'development',
+    CLOUDINARY_CLOUD_NAME: required('CLOUDINARY_CLOUD_NAME'),
+    CLOUDINARY_API_KEY: required('CLOUDINARY_API_KEY'),
+    CLOUDINARY_API_SECRET: required('CLOUDINARY_API_SECRET'),
 }

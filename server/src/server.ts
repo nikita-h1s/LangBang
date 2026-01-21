@@ -5,6 +5,8 @@ import path from "path";
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 
+dotenv.config();
+
 import authRoutes from './routes/auth.routes.js';
 import languagesRoutes from './routes/languages.routes.js';
 import coursesRoutes from './routes/courses.routes.js';
@@ -13,10 +15,9 @@ import exercisesRoutes from './routes/exercises.routes.js';
 import achievementsRoutes from './routes/achievements.routes.js';
 import chatRoutes from './routes/chat.routes.js';
 import usersRoutes from './routes/users.routes.js';
+import uploadRoutes from './routes/upload.routes.js';
 import { errorHandler } from "./middlewares/errorHandler.js";
 import {fileURLToPath} from "url";
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,6 +44,7 @@ app.use('/api', exercisesRoutes);
 app.use('/api', achievementsRoutes);
 app.use('/api', chatRoutes);
 app.use('/api', usersRoutes);
+app.use('/api', uploadRoutes);
 
 app.use(errorHandler);
 

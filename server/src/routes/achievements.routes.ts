@@ -11,8 +11,8 @@ const router = Router();
 
 router.post('/achievements', authenticateToken,
     requirePermission('manage_achievement'), createAchievement);
-// TODO: Change to grantAchievementToUser(userId, achievementId) without http request
-router.post('/users/:userId/achievements/:achievementId', grantAchievementToUser);
+router.post('/users/:userId/achievements/:achievementId', authenticateToken,
+    requirePermission('manage_achievement'), grantAchievementToUser);
 router.get('/users/:userId/achievements', authenticateToken, getUserAchievements);
 router.patch('/achievements/:id', authenticateToken,
     requirePermission('manage_achievement'), updateAchievement);
