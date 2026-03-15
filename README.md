@@ -50,6 +50,14 @@ Middleware: Handles request validation and authentication.
 
 Database Layer: Prisma ORM for type-safe data access and migrations.
 
+## 📘 API Documentation
+
+The API documentation is available via Swagger UI.
+
+You can explore and test the endpoints here:
+
+[https://lang-bang.vercel.app/api-docs](https://lang-bang.vercel.app/api-docs/)
+
 ## 🔧 Installation & Setup
 
 Follow the steps below to run the project locally.
