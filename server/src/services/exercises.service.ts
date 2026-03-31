@@ -310,9 +310,53 @@ export const submitExercise = async (
         }
     })
 
+    updateEnrollmentProgress(userId, exercise.lessonId).catch(err => {
+        console.error("Enrollment progress update failed:", err);
+    });
+
     achievementService.checkAndUnlockAchievements(userId).catch(err => {
         console.error("Achievement check failed:", err);
     });
 
     return newProgress
 }
+
+const updateEnrollmentProgress = async (userId: string, lessonId: number) => {
+    const lesson = await prisma.lesson.findUnique({
+        where: { lessonId },
+        select: { courseId: true }
+    });
+    if (!lesson) return;
+
+    const enrollment = await prisma.enrollment.findUnique({
+        where: { userId_courseId: { userId, courseId: lesson.courseId } }
+    });
+    if (!enrollment) return;
+
+    const { courseId } = lesson;
+
+    const [totalExercises, completedExercises] = await Promise.all([
+        prisma.exercise.count({
+            where: { lesson: { courseId } }
+        }),
+        prisma.exerciseProgress.groupBy({
+            by: ['exerciseId'],
+            where: { userId, isCorrect: true, exercise: { lesson: { courseId } } }
+        }).then(res => res.length)
+    ]);
+
+    const progress = totalExercises === 0
+                     ? 0
+                     : Math.round((completedExercises / totalExercises) * 100);
+
+    await prisma.enrollment.update({
+        where: { userId_courseId: { userId, courseId } },
+        data: {
+            progress,
+            ...(progress === 100 && {
+                status: 'completed',
+                completedAt: new Date()
+            })
+        }
+    });
+};

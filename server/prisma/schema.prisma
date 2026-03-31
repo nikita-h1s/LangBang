@@ -65,7 +65,6 @@ model Course {
   @@map("courses")
 }
 
-// TODO: add progress field
 model Enrollment {
   userId       String                 @map("user_id") @db.Uuid
   courseId     Int                    @map("course_id")
